@@ -4,7 +4,9 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import server.Main;
-
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.Date;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.awt.*;
@@ -45,11 +47,15 @@ public class Users {
     @Path("new")
     public String userNew(@FormDataParam("Username") String Username, @FormDataParam("Password") String Password, @FormDataParam("Email") String Email) {
         System.out.println("Invoked Users.userNew()");
+        String date = java.time.LocalDate.now().toString();
+        System.out.println(date);
         try {
-            PreparedStatement ps = Main.db.prepareStatement("INSERT INTO Users (Username, Password, Email) VALUES (?, ?, ?)");
+            PreparedStatement ps = Main.db.prepareStatement("INSERT INTO Users (Username, Password, Email, StartDate, Activity) VALUES (?, ?, ?, ?, ?)");
             ps.setString(1, Username);
             ps.setString(2, Password);
             ps.setString(3, Email);
+            ps.setString(4, date);
+            ps.setString(5, String.valueOf(true));
             ps.execute();
             return "{\"OK\": \"Added user.\"}";
         }
