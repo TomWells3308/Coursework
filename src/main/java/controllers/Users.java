@@ -4,6 +4,7 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import server.Main;
+
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Date;
@@ -48,7 +49,6 @@ public class Users {
     public String userNew(@FormDataParam("Username") String Username, @FormDataParam("Password") String Password, @FormDataParam("Email") String Email) {
         System.out.println("Invoked Users.userNew()");
         String date = java.time.LocalDate.now().toString();
-        System.out.println(date);
         try {
             PreparedStatement ps = Main.db.prepareStatement("INSERT INTO Users (Username, Password, Email, StartDate, Activity) VALUES (?, ?, ?, ?, ?)");
             ps.setString(1, Username);
@@ -62,6 +62,22 @@ public class Users {
         catch (Exception exception){
             System.out.println("Database error: " + exception.getMessage());
             return "{\"Error\": \"Unable to create new item, please see server console for more info.\"}";
+        }
+    }
+
+    @POST
+    @Path("delete/{userID}")
+    public String deleteUser(@PathParam("userID") Integer userID){
+        System.out.println("Invoked Users.deleteUser()");
+        try{
+            PreparedStatement ps = Main.db.prepareStatement("DELETE FROM Users WHERE UserID = ?");
+            ps.setInt(1, userID);
+            ps.execute();
+            return "{\"OK\": \"User deleted\"}";
+        }
+        catch (Exception exception){
+            System.out.println("Database error: " + exception.getMessage());
+            return "{\"Error\": \"Unable to delete item, please see server console for more info.\"}";
         }
     }
 }
