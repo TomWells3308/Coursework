@@ -4,6 +4,7 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import server.Main;
+
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Date;
@@ -13,40 +14,66 @@ import java.awt.*;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLOutput;
-import java.util.concurrent.ExecutionException;
 
-@Path("friend/")
+@Path("user/")
 @Consumes(MediaType.MULTIPART_FORM_DATA)
 @Produces(MediaType.APPLICATION_JSON)
 
-public class Friends {
-    @POST
-    @Path("add")
-    public String friendAdd(@FormDataParam("UserID_1") Integer UserID_1, @FormDataParam("UserID_2") Integer UserID_2){
-        System.out.println("Invoked Friends.friendAdd()");
-        try{
-            PreparedStatement ps = Main.db.prepareStatement("INSERT INTO Friendships (UserID_1, UserID_2) VALUES (?, ?)");
-            ps.setInt(1, UserID_1);
-            ps.setInt(2, UserID_2);
-            ps.execute();
-            return "{\"OK\": \"Added friendship.\"}";
+public class Users {
+    @GET
+    @Path("get/{userID}")
+    public String userGet(@PathParam("userID") Integer userID) {
+        System.out.println("Invoked Users.userGet() with UserID " + userID);
+        try {
+            PreparedStatement ps = Main.db.prepareStatement("SELECT UserID, Username, Password, Email, StartDate, Activity, Token FROM Users");
+            ResultSet results = ps.executeQuery();
+            JSONObject response = new JSONObject();
+            if (results.next()) {
+                response.put("UserID", results.getInt(1));
+                response.put("Username", results.getString(2));
+                response.put("Password", results.getString(3));
+                response.put("Email", results.getString(4));
+                response.put("StartDate", results.getString(5));
+                response.put("Activity", results.getBoolean(6));
+                response.put("Token", results.getString(7));
+            }
+            return response.toString();
+        } catch (Exception exception){
+            System.out.println("Database error: " + exception.getMessage());
+            return "{\"Error\": \"Unable to list items.  Error code xx.\"}";
         }
-        catch(Exception exception){
+    }
+
+    @POST
+    @Path("new")
+    public String userNew(@FormDataParam("Username") String Username, @FormDataParam("Password") String Password, @FormDataParam("Email") String Email) {
+        System.out.println("Invoked Users.userNew()");
+        String date = java.time.LocalDate.now().toString();
+        try {
+            PreparedStatement ps = Main.db.prepareStatement("INSERT INTO Users (Username, Password, Email, StartDate, Activity) VALUES (?, ?, ?, ?, ?)");
+            ps.setString(1, Username);
+            ps.setString(2, Password);
+            ps.setString(3, Email);
+            ps.setString(4, date);
+            ps.setString(5, String.valueOf(true));
+            ps.execute();
+            return "{\"OK\": \"Added user.\"}";
+        }
+        catch (Exception exception){
             System.out.println("Database error: " + exception.getMessage());
             return "{\"Error\": \"Unable to create new item, please see server console for more info.\"}";
         }
     }
 
     @POST
-    @Path("delete/{UserID}")
-    public String deleteUser(@PathParam("UserID_1") Integer UserID_1, @FormDataParam("UserID_2") Integer UserID_2){
-        System.out.println("Invoked Users.deleteFriendship()");
+    @Path("delete/{userID}")
+    public String deleteUser(@PathParam("userID") Integer userID){
+        System.out.println("Invoked Users.deleteUser()");
         try{
-            PreparedStatement ps = Main.db.prepareStatement("DELETE FROM Friendships WHERE UserID_1 = ? AND UserID_2 = ?");
-            ps.setInt(1, UserID_1);
-            ps.setInt(2, UserID_2);
+            PreparedStatement ps = Main.db.prepareStatement("DELETE FROM Users WHERE UserID = ?");
+            ps.setInt(1, userID);
             ps.execute();
-            return "{\"OK\": \"Friendship deleted\"}";
+            return "{\"OK\": \"User deleted\"}";
         }
         catch (Exception exception){
             System.out.println("Database error: " + exception.getMessage());
