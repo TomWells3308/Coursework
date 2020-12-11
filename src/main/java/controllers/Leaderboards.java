@@ -20,3 +20,82 @@ import java.util.concurrent.ExecutionException;
 @Produces(MediaType.APPLICATION_JSON)
 
 public class Leaderboards {
+  @POST
+  @Path("update")
+  public String updateLeaderboard(@FormDataParam("Score") Integer Score, @FormDataParam("UserID") Integer UserID, @FormDataParam("GameID") Integer GameID, @FormDataParam("Score") Integer Score){
+      try {
+            System.out.println("Invoked Leaderboards.updateLeaderboard/update id=" + id);
+            PreparedStatement ps = Main.db.prepareStatement("UPDATE Leaderboards SET Score = ? WHERE UserID = ? AND GameID = ?");
+            ps.setInt(1, Score);
+            ps.execute();
+            return "{\"OK\": \"Leaderboard updated\"}";
+        } catch (Exception exception) {
+            System.out.println("Database error: " + exception.getMessage());
+            return "{\"Error\": \"Unable to update item, please see server console for more info.\"}";
+        }
+    }
+  
+  @POST
+  @Path("new")
+  public String leaderboardNew(@FormDataParam("UserID") Integer UserID, @FormDataParam("GameID") Integer GameID) {
+        System.out.println("Invoked Leaderboards.leaderboardNew()");
+        try {
+            PreparedStatement ps = Main.db.prepareStatement("INSERT INTO Leaderboards (UserID, GameID, Score) VALUES (?, ?, ?)");
+            ps.setInt(1, UserID);
+            ps.setInt(2, GameID);
+            ps.setInt(3, 0);
+            ps.execute();
+            return "{\"OK\": \"Added leaderboard.\"}";
+        }
+        catch (Exception exception){
+            System.out.println("Database error: " + exception.getMessage());
+            return "{\"Error\": \"Unable to create new item, please see server console for more info.\"}";
+        }
+    }
+  
+  @GET
+  @Path("list-user/{UserID}")
+  public String leaderboardList(){
+        System.out.println("Invoked Leaderboards.leaderboardList()");
+        JSONArray response = new JSONArray();
+        try {
+            PreparedStatement ps = Main.db.prepareStatement("SELECT * FROM Leaderboards WHERE UserID = ?");
+            ps.setInt(1, UserID)
+            ResultSet results = ps.executeQuery();
+            while (results.next()==true) {
+                JSONObject row = new JSONObject();
+                row.put("UserID", results.getInt(1));
+                row.put("GameID", results.getInt(2));
+                row.put("Score", results.getInt(3));
+                response.add(row);
+            }
+            return response.toString();
+        } catch (Exception exception) {
+            System.out.println("Database error: " + exception.getMessage());
+            return "{\"Error\": \"Unable to list items.  Error code xx.\"}";
+        }
+    }
+  
+  @GET
+  @Path("list-game/{GameID}")
+  public String leaderboardList(){
+        System.out.println("Invoked Leaderboards.leaderboardList()");
+        JSONArray response = new JSONArray();
+        try {
+            PreparedStatement ps = Main.db.prepareStatement("SELECT * FROM Leaderboards WHERE GameID = ?");
+            ps.setInt(1, GameID)
+            ResultSet results = ps.executeQuery();
+            while (results.next()==true) {
+                JSONObject row = new JSONObject();
+                row.put("UserID", results.getInt(1));
+                row.put("GameID", results.getInt(2));
+                row.put("Score", results.getInt(3));
+                response.add(row);
+            }
+            return response.toString();
+        } catch (Exception exception) {
+            System.out.println("Database error: " + exception.getMessage());
+            return "{\"Error\": \"Unable to list items.  Error code xx.\"}";
+        }
+    }
+}
