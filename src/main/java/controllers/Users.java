@@ -21,11 +21,12 @@ import java.sql.SQLOutput;
 
 public class Users {
     @GET
-    @Path("get/{userID}")
-    public String userGet(@PathParam("userID") Integer userID) {
-        System.out.println("Invoked Users.userGet() with UserID " + userID);
+    @Path("get/{UserID}")
+    public String userGet(@PathParam("UserID") Integer UserID) {
+        System.out.println("Invoked Users.userGet() with UserID " + UserID);
         try {
-            PreparedStatement ps = Main.db.prepareStatement("SELECT UserID, Username, Password, Email, StartDate, Activity, Token FROM Users");
+            PreparedStatement ps = Main.db.prepareStatement("SELECT UserID, Username, Password, Email, StartDate, Activity, Token FROM Users WHERE UserID = ?");
+            ps.setInt(1, UserID)
             ResultSet results = ps.executeQuery();
             JSONObject response = new JSONObject();
             if (results.next()) {
