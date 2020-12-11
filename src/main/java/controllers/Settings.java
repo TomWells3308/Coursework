@@ -21,8 +21,8 @@ import java.util.concurrent.ExecutionException;
 
 public class Settings {
   @POST
-  @Path("update")
-  public String updateSettings(@FormDataParam(UserID) Integer UserID, @FormDataParam(VolumeSFX) Integer VolumeSFX, @FormDataParam(VolumeMusic) Integer VolumeMusic, @FormDataParam(Animations) Boolean Animations, @FormDataParam(Chat) Boolean Chat){
+  @Path("update/{UserID}")
+  public String updateSettings(@FormDataParam(VolumeSFX) Integer VolumeSFX, @FormDataParam(VolumeMusic) Integer VolumeMusic, @FormDataParam(Animations) Boolean Animations, @FormDataParam(Chat) Boolean Chat){
   try {
             System.out.println("Invoked Settings.updateSettings/update id=" + UserID);
             PreparedStatement ps = Main.db.prepareStatement("UPDATE Settings SET VolumeSFX = ?, VolumeMusic = ?, Animations = ?, Chat = ? WHERE UserID = ?");
@@ -30,6 +30,7 @@ public class Settings {
             ps.setInt(2, VolumeMusic);
             ps.setBoolean(3, Animations);
             ps.setBoolean(4, Chat);
+            ps.setInt(5, UserID)
             ps.execute();
             return "{\"OK\": \"Settings updated\"}";
         } catch (Exception exception) {
