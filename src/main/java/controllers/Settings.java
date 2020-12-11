@@ -63,7 +63,8 @@ public class Settings {
     public String settinsGet(@PathParam("UserID") Integer UserID) {
         System.out.println("Invoked Settings.settingsGet() with UserID " + UserID);
         try {
-            PreparedStatement ps = Main.db.prepareStatement("SELECT VolumeSFX, VolumeMusic, Animations, Chat FROM Users");
+            PreparedStatement ps = Main.db.prepareStatement("SELECT VolumeSFX, VolumeMusic, Animations, Chat FROM Users WHERE UserID = ?");
+            ps.setInt(1, UserID)
             ResultSet results = ps.executeQuery();
             JSONObject response = new JSONObject();
             if (results.next()) {
@@ -78,3 +79,4 @@ public class Settings {
             return "{\"Error\": \"Unable to list items.  Error code xx.\"}";
         }
     }
+}
