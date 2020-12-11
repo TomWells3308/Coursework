@@ -26,7 +26,7 @@ public class Users {
         System.out.println("Invoked Users.userGet() with UserID " + UserID);
         try {
             PreparedStatement ps = Main.db.prepareStatement("SELECT UserID, Username, Password, Email, StartDate, Activity, Token FROM Users WHERE UserID = ?");
-            ps.setInt(1, UserID)
+            ps.setInt(1, UserID);
             ResultSet results = ps.executeQuery();
             JSONObject response = new JSONObject();
             if (results.next()) {

@@ -21,8 +21,8 @@ import java.util.concurrent.ExecutionException;
 
 public class Settings {
   @POST
-  @Path("update/{UserID}")
-  public String updateSettings(@FormDataParam(VolumeSFX) Integer VolumeSFX, @FormDataParam(VolumeMusic) Integer VolumeMusic, @FormDataParam(Animations) Boolean Animations, @FormDataParam(Chat) Boolean Chat){
+  @Path("update")
+  public String updateSettings(@FormDataParam("UserID") Integer UserID, @FormDataParam("VolumeSFX") Integer VolumeSFX, @FormDataParam("VolumeMusic") Integer VolumeMusic, @FormDataParam("Animations") Boolean Animations, @FormDataParam("Chat") Boolean Chat){
   try {
             System.out.println("Invoked Settings.updateSettings/update id=" + UserID);
             PreparedStatement ps = Main.db.prepareStatement("UPDATE Settings SET VolumeSFX = ?, VolumeMusic = ?, Animations = ?, Chat = ? WHERE UserID = ?");
@@ -30,7 +30,7 @@ public class Settings {
             ps.setInt(2, VolumeMusic);
             ps.setBoolean(3, Animations);
             ps.setBoolean(4, Chat);
-            ps.setInt(5, UserID)
+            ps.setInt(5, UserID);
             ps.execute();
             return "{\"OK\": \"Settings updated\"}";
         } catch (Exception exception) {
@@ -41,15 +41,15 @@ public class Settings {
   
   @POST
   @Path("new")
-  public String settingsNew(@FormDataParam(UserID) Integer UserID){
-  System.out.println("Invoked Settings.settingsNew()");
-  try {
+  public String settingsNew(@FormDataParam("UserID") Integer UserID){
+    System.out.println("Invoked Settings.settingsNew()");
+    try {
             PreparedStatement ps = Main.db.prepareStatement("INSERT INTO Settings (UserID, VolumeSFX, VolumeMusic, Animations, Chat) VALUES (?, ?, ?, ?, ?)");
             ps.setInt(1, UserID);
             ps.setInt(2, 10);
             ps.setInt(3, 10);
             ps.setBoolean(4, true);
-            ps.setBoolean(5, true)
+            ps.setBoolean(5, true);
             ps.execute();
             return "{\"OK\": \"Added settings.\"}";
         }
@@ -64,8 +64,8 @@ public class Settings {
     public String settinsGet(@PathParam("UserID") Integer UserID) {
         System.out.println("Invoked Settings.settingsGet() with UserID " + UserID);
         try {
-            PreparedStatement ps = Main.db.prepareStatement("SELECT VolumeSFX, VolumeMusic, Animations, Chat FROM Users WHERE UserID = ?");
-            ps.setInt(1, UserID)
+            PreparedStatement ps = Main.db.prepareStatement("SELECT VolumeSFX, VolumeMusic, Animations, Chat FROM Settings WHERE UserID = ?");
+            ps.setInt(1, UserID);
             ResultSet results = ps.executeQuery();
             JSONObject response = new JSONObject();
             if (results.next()) {

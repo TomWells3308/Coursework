@@ -22,11 +22,13 @@ import java.util.concurrent.ExecutionException;
 public class Leaderboards {
   @POST
   @Path("update")
-  public String updateLeaderboard(@FormDataParam("Score") Integer Score, @FormDataParam("UserID") Integer UserID, @FormDataParam("GameID") Integer GameID, @FormDataParam("Score") Integer Score){
+  public String updateLeaderboard(@FormDataParam("Score") Integer Score, @FormDataParam("UserID") Integer UserID, @FormDataParam("GameID") Integer GameID){
       try {
-            System.out.println("Invoked Leaderboards.updateLeaderboard/update id=" + id);
+            System.out.println("Invoked Leaderboards.updateLeaderboard/update id=" + UserID);
             PreparedStatement ps = Main.db.prepareStatement("UPDATE Leaderboards SET Score = ? WHERE UserID = ? AND GameID = ?");
             ps.setInt(1, Score);
+            ps.setInt(2, UserID);
+            ps.setInt(3, GameID);
             ps.execute();
             return "{\"OK\": \"Leaderboard updated\"}";
         } catch (Exception exception) {
@@ -55,12 +57,12 @@ public class Leaderboards {
   
   @GET
   @Path("list-user/{UserID}")
-  public String leaderboardList(){
+  public String leaderboardListUser(@PathParam("UserID") Integer UserID){
         System.out.println("Invoked Leaderboards.leaderboardList()");
         JSONArray response = new JSONArray();
         try {
-            PreparedStatement ps = Main.db.prepareStatement("SELECT * FROM Leaderboards WHERE UserID = ?");
-            ps.setInt(1, UserID)
+            PreparedStatement ps = Main.db.prepareStatement("SELECT UserID, GameID, Score FROM Leaderboards WHERE UserID = ?");
+            ps.setInt(1, UserID);
             ResultSet results = ps.executeQuery();
             while (results.next()==true) {
                 JSONObject row = new JSONObject();
@@ -78,12 +80,12 @@ public class Leaderboards {
   
   @GET
   @Path("list-game/{GameID}")
-  public String leaderboardList(){
+  public String leaderboardListGame(@PathParam("GameID") Integer GameID){
         System.out.println("Invoked Leaderboards.leaderboardList()");
         JSONArray response = new JSONArray();
         try {
             PreparedStatement ps = Main.db.prepareStatement("SELECT * FROM Leaderboards WHERE GameID = ?");
-            ps.setInt(1, GameID)
+            ps.setInt(1, GameID);
             ResultSet results = ps.executeQuery();
             while (results.next()==true) {
                 JSONObject row = new JSONObject();

@@ -38,8 +38,8 @@ public class Friends {
     }
 
     @POST
-    @Path("delete/{UserID}")
-    public String deleteUser(@PathParam("UserID_1") Integer UserID_1, @FormDataParam("UserID_2") Integer UserID_2){
+    @Path("delete/{UserID_1}")
+    public String deleteFriend(@PathParam("UserID_1") Integer UserID_1, @FormDataParam("UserID_2") Integer UserID_2){
         System.out.println("Invoked Users.deleteFriendship()");
         try{
             PreparedStatement ps = Main.db.prepareStatement("DELETE FROM Friendships WHERE UserID_1 = ? AND UserID_2 = ?");
