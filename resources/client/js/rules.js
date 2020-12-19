@@ -24,7 +24,7 @@ let loadImages = new Promise(function(resolve) {
 
     for (let i of imageFiles) {
         let img = new Image();
-        img.src = i;
+        img.src = "/client/img/" + i;
         console.log("Loading" + i);
         img.onload = () => loadCheck();
         images.push(img)
@@ -72,7 +72,7 @@ function redraw(){
     context.fillRect(20, 0, w-60, h-20);
     context.drawImage(images[0], logoSizePosition.x, logoSizePosition.y);
     if((leftMouseDown) && (mousePosition.x <= (logoSizePosition.x + logoSizePosition.w)) && (mousePosition.x >= logoSizePosition.x) && (mousePosition.y <= logoSizePosition.h)){
-        window.location.replace("http://localhost:63342/Coursework/Coursework-master/src/main/java/server/menu.html");
+        window.location.replace("http://localhost:8081/menu.html");
     }
     window.requestAnimationFrame(redraw);
 }

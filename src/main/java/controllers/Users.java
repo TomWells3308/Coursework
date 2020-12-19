@@ -1,5 +1,6 @@
 package controllers;
 
+import org.eclipse.jetty.server.Authentication;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -29,26 +30,61 @@ import java.util.UUID;
 public class Users {
     @GET
     @Path("get/{UserID}")
-    public String userGet(@PathParam("UserID") Integer UserID) {
+    public String userGet(@PathParam("UserID") Integer UserID, @FormDataParam("Token") String Token) {
         System.out.println("Invoked Users.userGet() with UserID " + UserID);
-        try {
-            PreparedStatement ps = Main.db.prepareStatement("SELECT UserID, Username, Password, Email, StartDate, Activity, Token FROM Users WHERE UserID = ?");
-            ps.setInt(1, UserID);
-            ResultSet results = ps.executeQuery();
-            JSONObject response = new JSONObject();
-            if (results.next()) {
-                response.put("UserID", results.getInt(1));
-                response.put("Username", results.getString(2));
-                response.put("Password", results.getString(3));
-                response.put("Email", results.getString(4));
-                response.put("StartDate", results.getString(5));
-                response.put("Activity", results.getBoolean(6));
-                response.put("Token", results.getString(7));
+        if(validToken(Token)) {
+            try {
+                PreparedStatement ps = Main.db.prepareStatement("SELECT UserID, Username, Password, Email, StartDate, Activity, Token FROM Users WHERE UserID = ?");
+                ps.setInt(1, UserID);
+                ResultSet results = ps.executeQuery();
+                JSONObject response = new JSONObject();
+                if (results.next()) {
+                    response.put("UserID", results.getInt(1));
+                    response.put("Username", results.getString(2));
+                    response.put("Password", results.getString(3));
+                    response.put("Email", results.getString(4));
+                    response.put("StartDate", results.getString(5));
+                    response.put("Activity", results.getBoolean(6));
+                    response.put("Token", results.getString(7));
+                }
+                return response.toString();
+            } catch (Exception exception) {
+                System.out.println("Database error: " + exception.getMessage());
+                return "{\"Error\": \"Unable to list items.  Error code xx.\"}";
             }
-            return response.toString();
-        } catch (Exception exception){
-            System.out.println("Database error: " + exception.getMessage());
-            return "{\"Error\": \"Unable to list items.  Error code xx.\"}";
+        }
+        else{
+            return "{\"Error\": \"Invalid Token.\"}";
+        }
+    }
+
+    @GET
+    @Path("get-token/{token}")
+    public String userGet(@PathParam("token") String token) {
+        System.out.println("Invoked Users.userGet() with Token " + token);
+        if(validToken(token)) {
+            try {
+                PreparedStatement ps = Main.db.prepareStatement("SELECT UserID, Username, Password, Email, StartDate, Activity, Token FROM Users WHERE Token = ?");
+                ps.setString(1, token);
+                ResultSet results = ps.executeQuery();
+                JSONObject response = new JSONObject();
+                if (results.next()) {
+                    response.put("UserID", results.getInt(1));
+                    response.put("Username", results.getString(2));
+                    response.put("Password", results.getString(3));
+                    response.put("Email", results.getString(4));
+                    response.put("StartDate", results.getString(5));
+                    response.put("Activity", results.getBoolean(6));
+                    response.put("Token", results.getString(7));
+                }
+                return response.toString();
+            } catch (Exception exception) {
+                System.out.println("Database error: " + exception.getMessage());
+                return "{\"Error\": \"Unable to list items.  Error code xx.\"}";
+            }
+        }
+        else{
+            return "{\"Error\": \"Invalid Token.\"}";
         }
     }
 
@@ -106,7 +142,6 @@ public class Users {
                     ps2.setString(2, Username);
                     ps2.executeUpdate();
                     JSONObject userDetails = new JSONObject();
-                    userDetails.put("username", Username);
                     userDetails.put("token", token);
                     return userDetails.toString();
                 } else {
@@ -120,4 +155,33 @@ public class Users {
             return "{\"Error\": \"Server side error!\"}";
         }
     }
+
+    @POST
+    @Path("logout/{token}")
+    public String logoutUser(@PathParam("token") String token){
+        System.out.println("Invoked logoutUser() on path user/logout{token}");
+        try{
+            PreparedStatement ps = Main.db.prepareStatement("UPDATE Users SET Token = null WHERE Token = ?");
+            ps.setString(1, token);
+            ps.execute();
+            return "{\"OK\": \"Token deleted\"}";
+        } catch (Exception exception){
+            System.out.println("Database error during /user/logout/{token}: " + exception.getMessage());
+            return "{\"Error\": \"Server side error!\"}";
+        }
+    }
+
+    public static boolean validToken(String Token) {		// this method MUST be called before any data is returned to the browser
+                                                            // token is taken from the Cookie sent back automatically with every HTTP request
+        try {
+            PreparedStatement ps = Main.db.prepareStatement("SELECT UserID FROM Users WHERE Token = ?");
+            ps.setString(1, Token);
+            ResultSet logoutResults = ps.executeQuery();
+            return logoutResults.next();   //logoutResults.next() will be true if there is a record in the ResultSet
+        } catch (Exception exception) {
+            System.out.println("Database error" + exception.getMessage());
+            return false;
+        }
+    }
+
 }

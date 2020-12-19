@@ -1,3 +1,5 @@
+//import Cookies from "/client/js/js.cookie.js";
+
 let w=0,h=0;
 let imageFiles = ["StackedDecksLogo.JPG", "FriendsButton.png", "LeaderboardButton.png", "SettingsButton.png", "LoginSignUpButton.png", "PokerButton.png", "OldMaidButton.png", "MafiaButton.png", "BlankButton.png"];
 let images = [];
@@ -32,7 +34,7 @@ let loadImages = new Promise(function(resolve) {
 
     for (let i of imageFiles) {
         let img = new Image();
-        img.src = i;
+        img.src = "/client/img/" + i;
         console.log("Loading" + i);
         img.onload = () => loadCheck();
         images.push(img)
@@ -68,6 +70,8 @@ function pageLoad(){
             rightMouseDown = false;
         }
     }, false);
+
+    Cookies.get();
 }
 
 function redraw(){
@@ -90,28 +94,76 @@ function redraw(){
     context.drawImage(images[8], mafiaSizePosition.x, (mafiaSizePosition.y+240));
     context.drawImage(images[8], mafiaSizePosition.x, (mafiaSizePosition.y+360));
     if((leftMouseDown) && (mousePosition.x <= (logoSizePosition.x + logoSizePosition.w)) && (mousePosition.x >= logoSizePosition.x) && (mousePosition.y <= logoSizePosition.h)){
-        window.location.replace("http://localhost:63342/Coursework/Coursework-master/src/main/java/server/menu.html");
+        window.location.replace("http://localhost:8081/menu.html");
     }
     if((leftMouseDown) && (mousePosition.x <= (friendsSizePosition.x + friendsSizePosition.w)) && (mousePosition.x >= friendsSizePosition.x) && (mousePosition.y <= (friendsSizePosition.h + friendsSizePosition.y)) && (mousePosition.y >= friendsSizePosition.y)){
-        window.location.replace("http://localhost:63342/Coursework/Coursework-master/src/main/java/server/friends.html");
+        window.location.replace("http://localhost:8081/friends.html");
     }
     if((leftMouseDown) && (mousePosition.x <= (leaderboardSizePosition.x + leaderboardSizePosition.w)) && (mousePosition.x >= leaderboardSizePosition.x) && (mousePosition.y <= (leaderboardSizePosition.h + leaderboardSizePosition.y)) && (mousePosition.y >= leaderboardSizePosition.y)){
-        window.location.replace("http://localhost:63342/Coursework/Coursework-master/src/main/java/server/leaderboard.html");
+        window.location.replace("http://localhost:8081/leaderboard.html");
     }
     if((leftMouseDown) && (mousePosition.x <= (settingsSizePosition.x + settingsSizePosition.w)) && (mousePosition.x >= settingsSizePosition.x) && (mousePosition.y <= (settingsSizePosition.h + settingsSizePosition.y)) && (mousePosition.y >= settingsSizePosition.y)){
-        window.location.replace("http://localhost:63342/Coursework/Coursework-master/src/main/java/server/settings.html");
+        window.location.replace("http://localhost:8081/settings.html");
     }
     if((leftMouseDown) && (mousePosition.x <= (w-310 + loginSizePosition.w)) && (mousePosition.x >= w-310) && (mousePosition.y <= (loginSizePosition.h + loginSizePosition.y)) && (mousePosition.y >= loginSizePosition.y)){
-        window.location.replace("http://localhost:63342/Coursework/Coursework-master/src/main/java/server/login.html");
+        window.location.replace("http://localhost:8081/login.html");
     }
     if((leftMouseDown) && (mousePosition.x <= (pokerSizePosition.x + pokerSizePosition.w)) && (mousePosition.x >= pokerSizePosition.x) && (mousePosition.y <= (pokerSizePosition.h + pokerSizePosition.y)) && (mousePosition.y >= pokerSizePosition.y)){
-        window.location.replace("http://localhost:63342/Coursework/Coursework-master/src/main/java/server/game1.html");
+        window.location.replace("http://localhost:8081/game1.html");
     }
     if((leftMouseDown) && (mousePosition.x <= (oldMaidSizePosition.x + oldMaidSizePosition.w)) && (mousePosition.x >= oldMaidSizePosition.x) && (mousePosition.y <= (oldMaidSizePosition.h + oldMaidSizePosition.y)) && (mousePosition.y >= oldMaidSizePosition.y)){
-        window.location.replace("http://localhost:63342/Coursework/Coursework-master/src/main/java/server/game2.html");
+        window.location.replace("http://localhost:8081/game2.html");
     }
     if((leftMouseDown) && (mousePosition.x <= (mafiaSizePosition.x + mafiaSizePosition.w)) && (mousePosition.x >= mafiaSizePosition.x) && (mousePosition.y <= (mafiaSizePosition.h + mafiaSizePosition.y)) && (mousePosition.y >= mafiaSizePosition.y)){
-        window.location.replace("http://localhost:63342/Coursework/Coursework-master/src/main/java/server/game3.html");
+        window.location.replace("http://localhost:8081/game3.html");
     }
     window.requestAnimationFrame(redraw);
+}
+
+function getUser(UserID) {
+    console.log("Invoked getUser()");
+
+    const url = "/user/get/";
+
+    fetch(url + UserID, {
+        method: "GET",
+    }).then(response => {
+        return response.json();
+    }).then(response => {
+        if (response.hasOwnProperty("Error")) {
+            alert(JSON.stringify(response));
+        } else{
+            getScoreUser(response, UserID);
+        }
+    })
+}
+
+function getScoreUser(dataResponse, UserID){
+    console.log("Invoked getScoreUser()")
+
+    const url = "/leaderboard/list-user/";
+
+    fetch(url + UserID, {
+        method: "GET",
+    }).then(response => {
+        return response.json();
+    }).then(response => {
+        if (response.hasOwnProperty("Error")) {
+            alert(JSON.stringify(response));
+        } else{
+            displayProfile(dataResponse, response);
+        }
+    })
+}
+
+function displayProfile(dataUser, dataScore) {
+    let score = 0;
+    let game;
+    for(let scores in dataScore){
+        if((scores.Score) > score){
+            score = scores.Score;
+            game = scores.GameID;
+        }
+    }
+    document.getElementById("profile").innerHTML = "<div>Username: " + dataUser.Username + "</div><div>Top Score: " + score + "</div><div> Top Game: " + game + "</div>";
 }

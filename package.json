@@ -1,0 +1,7 @@
+{
+  "name": "Coursework",
+  "version": "1.0.0",
+  "dependencies": {
+    "js-cookie": "^2.2.1"
+  }
+}

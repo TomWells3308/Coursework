@@ -1,3 +1,5 @@
+//import Cookies from 'client/js/js.cookie';
+
 let w=0,h=0;
 let imageFiles = ["StackedDecksLogo.JPG"];
 let images = [];
@@ -24,7 +26,7 @@ let loadImages = new Promise(function(resolve) {
 
     for (let i of imageFiles) {
         let img = new Image();
-        img.src = i;
+        img.src = "/client/img/" + i;
         console.log("Loading" + i);
         img.onload = () => loadCheck();
         images.push(img)
@@ -72,7 +74,7 @@ function redraw(){
     context.fillRect(20, 0, w-60, h-20);
     context.drawImage(images[0], logoSizePosition.x, logoSizePosition.y);
     if((leftMouseDown) && (mousePosition.x <= (logoSizePosition.x + logoSizePosition.w)) && (mousePosition.x >= logoSizePosition.x) && (mousePosition.y <= logoSizePosition.h)){
-        window.location.replace("http://localhost:63342/Coursework/Coursework-master/src/main/java/server/menu.html");
+        window.location.replace("http://localhost:8081/menu.html");
     }
     window.requestAnimationFrame(redraw);
 }
@@ -93,8 +95,9 @@ function postUserLogin(){
             alert(JSON.stringify(response));        // if it does, convert JSON object to string and alert
         } else {
             Cookies.set("token", response.token);
-            Cookies.set("username", response.username);
-            window.open("index.html", "_self");       //open index.html in same tab
+            Cookies.set("Username", response.Username);
+            Cookies.set("UserID", response.UserID)
+            window.open("menu.html", "_self");       //open index.html in same tab
         }
     });
 

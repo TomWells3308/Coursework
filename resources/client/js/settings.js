@@ -24,7 +24,7 @@ let loadImages = new Promise(function(resolve) {
 
     for (let i of imageFiles) {
         let img = new Image();
-        img.src = i;
+        img.src = "/Coursework/resources/client/img/"+ i;
         console.log("Loading" + i);
         img.onload = () => loadCheck();
         images.push(img)

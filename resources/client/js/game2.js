@@ -60,7 +60,7 @@ let loadCardImages = new Promise(function(resolve) {
 
     for (let c of cardImageFiles) {
         let img = new Image();
-        img.src = "/client/img/" + c;
+        img.src = "/client/img/" +  + c;
         console.log("Loading " + c);
         img.onload = () => loadCheck();
         cards.push(img);
