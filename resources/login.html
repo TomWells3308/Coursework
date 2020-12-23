@@ -6,10 +6,11 @@
     <script type="module" src="/client/js/js.cookie.min.js"></script>
     <script>
         let w=0,h=0;
-        let imageFiles = ["StackedDecksLogo.JPG"];
+        let imageFiles = ["StackedDecksLogo.JPG", "backButton.png"];
         let images = [];
         let mousePosition = {x: 0, y: 0}, leftMouseDown = false, rightMouseDown = false;
         let logoSizePosition = {x: 20, y:0, h:123, w:424};
+        let backSizePosition = {x: window.innerWidth-270, y:30, h:80, w:215}
         function fixSize(){
             w = window.innerWidth;
             h = window.innerHeight;
@@ -78,8 +79,12 @@
             context.fillStyle = "#ffffff";
             context.fillRect(20, 0, w-60, h-20);
             context.drawImage(images[0], logoSizePosition.x, logoSizePosition.y);
+            context.drawImage(images[1], backSizePosition.x, backSizePosition.y, backSizePosition.w, backSizePosition.h);
             if((leftMouseDown) && (mousePosition.x <= (logoSizePosition.x + logoSizePosition.w)) && (mousePosition.x >= logoSizePosition.x) && (mousePosition.y <= logoSizePosition.h)){
-                window.location.replace("http://localhost:8081/menu.html");
+                window.open("menu.html", "_self");
+            }
+            if((leftMouseDown) && (mousePosition.x <= (backSizePosition.x + backSizePosition.w)) && (mousePosition.x >= backSizePosition.x) && (mousePosition.y <= (backSizePosition.h + backSizePosition.y)) && (mousePosition.y >= backSizePosition.y)){
+                window.open("menu.html", "_self");
             }
             window.requestAnimationFrame(redraw);
         }
@@ -89,7 +94,7 @@
 
             let url = "/user/login";
             let formData = new FormData(document.getElementById('loginForm'));
-
+            console.log(formData);
             fetch(url, {
                 method: "POST",
                 body: formData,
@@ -100,7 +105,6 @@
                     alert(JSON.stringify(response));        // if it does, convert JSON object to string and alert
                 } else {
                     Cookies.set("token", response.token);
-                    alert(Cookies.get("token"));
                     window.open("menu.html", "_self");       //open index.html in same tab
                 }
             });
@@ -109,17 +113,97 @@
         function postUserLogout(){
             console.log("Invoked postUserLogout() ");
             Cookies.remove("token");
-            window.location.href = "login.html"
+            window.location.href = "menu.html"
+        }
+
+
+        function getUserID(Username){
+            console.log("Invoked getUserID()");
+            const url = "/user/get-username/";
+
+            fetch(url + Username, {
+                method: "GET",
+            }).then(response => {
+                return response.json();
+            }).then(response => {
+                if (response.hasOwnProperty("Error")) {
+                    alert(JSON.stringify(response));
+                } else{
+                    return(response.UserID)
+                }
+            })
+        }
+
+        function postUserNew(){
+            console.log("Invoked postUserNew()");
+
+            let url = "/user/new";
+            let formData = new FormData(document.getElementById('signUpForm'));
+            console.log(formData["Username"]);
+            fetch(url, {
+                method: "POST",
+                body: formData,
+            }).then(response => {
+                return response.json();
+            }).then(response => {
+                if(response.hasOwnProperty("Error")){
+                    alert("Error - Username may already be in use.");
+                    alert(JSON.stringify(response));
+                } else {
+                    alert("Account Created!! Please Login!!");
+                    postSettingsNew(getUserID(formData["Username"]))
+                }
+            });
+        }
+
+        function postSettingsNew(UserID){
+            console.log("Invoked postSettingsNew()");
+
+            let url="/settings/new";
+            let formData = new FormData();
+            formData.append('UserID', UserID);
+
+            fetch(url, {
+                method: "POST",
+                body: formData,
+            }).then(response => {
+                return response.json();
+            }).then(response => {
+                if(response.hasOwnProperty("Error")){
+                    alert("Error in settings initialization.");
+                    alert(JSON.stringify(response));
+                } else {
+                    window.open("login.html", "_self");
+                }
+            });
         }
     </script>
 </head>
 <body onload="pageLoad()">
-<form id="loginForm" style="position: absolute; left:400px">
-    <input type="text" name="Username" id="Username">
-    <input type="password" name="Password" id="Password">
-</form>
-<button class="button" onclick="postUserLogin();">LOGIN</button>
-<button class="button" onclick="postUserLogout();">LOGOUT</button>
+<div style="position: absolute; left: 150px; top: 200px; width: 700px; height: 600px; border-style: solid; border-width: 1px">
+    <div style="position: absolute; left:290px; top: 35px; font-size: 48px; font-weight: bold;: ">Login</div>
+    <div style="position: absolute; left: 112px; top:210px; font-size: 40px">Username:</div>
+    <div style="position: absolute; left: 120px; top:360px; font-size: 40px">Password:</div>
+    <form id="loginForm" style="position: absolute; left: 310px;">
+        <input style="position: absolute; top: 208px; width: 250px; height: 50px" type="text" name="Username" id="Username">
+        <input style="position: absolute; top: 358px; width: 250px; height: 50px" type="password" name="Password" id="Password">
+    </form>
+    <button style="position: absolute; width: 200px; height: 80px; left:480px; top: 500px; font-size: 35px; font-weight: bold" class="button" onclick="postUserLogin();">Login</button>
+    <button style="position: absolute; width: 200px; height: 80px; left:20px; top:500px; font-size: 35px; font-weight: bold" class="button" onclick="postUserLogout();">Log Out</button>
+</div>
+<div style="position: absolute; left: 851px; top: 200px; width: 700px; height: 600px; border-style: solid; border-width: 1px">
+    <div style="position: absolute; left:290px; top: 35px; font-size: 48px; font-weight: bold;: ">Sign-Up</div>
+    <div style="position: absolute; left: 112px; top:160px; font-size: 40px">Username:</div>
+    <div style="position: absolute; left: 120px; top:260px; font-size: 40px">Password:</div>
+    <div style="position: absolute; left: 120px; top:360px; font-size: 40px">Email:</div>
+
+    <form id="signUpForm" style="position: absolute; left: 310px;">
+        <input style="position: absolute; top: 158px; width: 250px; height: 50px" type="text" name="Username" id="UsernameSU">
+        <input style="position: absolute; top: 258px; width: 250px; height: 50px" type="password" name="Password" id="PasswordSU">
+        <input style="position: absolute; top: 358px; width: 250px; height: 50px" type="text" name="Email" id="EmailSU">
+    </form>
+    <button style="position: absolute; width: 200px; height: 80px; left:480px; top: 500px; font-size: 35px; font-weight: bold" class="button" onclick="postUserNew();">Sign Up</button>
+</div>
 <div style="width: 100%;">
     <canvas id="login"></canvas>
 </div>

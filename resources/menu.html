@@ -77,8 +77,6 @@
                     rightMouseDown = false;
                 }
             }, false);
-
-            alert(Cookies.get("token"));
             getUser(Cookies.get("token"));
         }
 
@@ -139,7 +137,7 @@
                 return response.json();
             }).then(response => {
                 if (response.hasOwnProperty("Error")) {
-                    alert(JSON.stringify(response));
+                    //alert(JSON.stringify(response));
                 } else{
                     getScoreUser(response, response.UserID);
                 }
@@ -157,7 +155,7 @@
                 return response.json();
             }).then(response => {
                 if (response.hasOwnProperty("Error")) {
-                    alert(JSON.stringify(response));
+                    alert(JSON.stringify(response.Score));
                 } else{
                     displayProfile(dataResponse, response);
                 }
@@ -165,13 +163,26 @@
         }
 
         function displayProfile(dataUser, dataScore) {
+            console.log(dataScore);
             let score = 0;
             let game;
-            for(let scores in dataScore){
-                if((scores.Score) > score){
-                    score = scores.Score;
-                    game = scores.GameID;
+            for(let i = 0; i< dataScore.length; i++){
+                if((dataScore[i].Score) > score){
+                    score = dataScore[i].Score;
+                    game = dataScore[i].GameID;
                 }
+            }
+            if(score === 0){
+                game = "None Yet!"
+            }
+            else if(game === 1){
+                game = "Poker"
+            }
+            else if(game === 2){
+                game = "Old Maid"
+            }
+            else{
+                game = "Mafia"
             }
             document.getElementById("profile").innerHTML = "<div>Username: " + dataUser.Username + "</div><div>Top Score: " + score + "</div><div> Top Game: " + game + "</div>";
         }

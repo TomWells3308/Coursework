@@ -46,16 +46,16 @@ public class Settings {
   
   @POST
   @Path("new")
-  public String settingsNew(@FormDataParam("UserID") Integer UserID){
+  public String settingsNew(@FormDataParam("UserID") int UserID){
     System.out.println("Invoked Settings.settingsNew()");
     try {
-            PreparedStatement ps = Main.db.prepareStatement("INSERT INTO Settings (UserID, VolumeSFX, VolumeMusic, Animations, Chat) VALUES (?, ?, ?, ?, ?)");
-            ps.setInt(1, UserID);
-            ps.setInt(2, 10);
-            ps.setInt(3, 10);
-            ps.setBoolean(4, true);
-            ps.setBoolean(5, true);
-            ps.execute();
+            PreparedStatement ps2 = Main.db.prepareStatement("INSERT INTO Settings (UserID, VolumeSFX, VolumeMusic, Animations, Chat) VALUES (?, ?, ?, ?, ?)");
+            ps2.setInt(1, UserID);
+            ps2.setInt(2, 10);
+            ps2.setInt(3, 10);
+            ps2.setBoolean(4, true);
+            ps2.setBoolean(5, true);
+            ps2.execute();
             return "{\"OK\": \"Added settings.\"}";
         }
         catch (Exception exception){

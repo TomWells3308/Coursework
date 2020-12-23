@@ -50,12 +50,31 @@ public class Users {
                 return response.toString();
             } catch (Exception exception) {
                 System.out.println("Database error: " + exception.getMessage());
-                return "{\"Error\": \"Unable to list items.  Error code xx.\"}";
+                return "{\"Error\": \"Unable to get item.  Error code xx.\"}";
             }
         }
         else{
             return "{\"Error\": \"Invalid Token.\"}";
         }
+    }
+
+    @GET
+    @Path("get-username/{Username}")
+    public String userGetUsername(@PathParam("Username") String Username){
+        System.out.println("Invoked Users.userGetUsername() with Username " + Username);
+            try{
+                PreparedStatement ps = Main.db.prepareStatement("SELECT UserID FROM Users WHERE Username = ?");
+                ps.setString(1, Username);
+                ResultSet results = ps.executeQuery();
+                JSONObject response = new JSONObject();
+                if (results.next()) {
+                    response.put("UserID", results.getInt(1));
+                }
+                return response.toString();
+            } catch (Exception exception){
+                System.out.println("Database error: " + exception.getMessage());
+                return "{\"Error\": \"Unable to get item.  Error code xx.\"}";
+            }
     }
 
     @GET
