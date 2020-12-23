@@ -139,7 +139,7 @@
 
             let url = "/user/new";
             let formData = new FormData(document.getElementById('signUpForm'));
-            console.log(formData["Username"]);
+            console.log(formData.get('Username'));
             fetch(url, {
                 method: "POST",
                 body: formData,
@@ -151,7 +151,7 @@
                     alert(JSON.stringify(response));
                 } else {
                     alert("Account Created!! Please Login!!");
-                    postSettingsNew(getUserID(formData["Username"]))
+                    postSettingsNew(getUserID(formData.get('Username')));
                 }
             });
         }
