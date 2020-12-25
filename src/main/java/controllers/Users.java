@@ -23,6 +23,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.UUID;
 
+import javax.xml.bind.DatatypeConverter;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 @Path("user/")
 @Consumes(MediaType.MULTIPART_FORM_DATA)
 @Produces(MediaType.APPLICATION_JSON)
@@ -62,19 +66,20 @@ public class Users {
     @Path("get-username/{Username}")
     public String userGetUsername(@PathParam("Username") String Username){
         System.out.println("Invoked Users.userGetUsername() with Username " + Username);
-            try{
-                PreparedStatement ps = Main.db.prepareStatement("SELECT UserID FROM Users WHERE Username = ?");
-                ps.setString(1, Username);
-                ResultSet results = ps.executeQuery();
-                JSONObject response = new JSONObject();
-                if (results.next()) {
-                    response.put("UserID", results.getInt(1));
-                }
-                return response.toString();
-            } catch (Exception exception){
-                System.out.println("Database error: " + exception.getMessage());
-                return "{\"Error\": \"Unable to get item.  Error code xx.\"}";
+        try {
+            PreparedStatement ps = Main.db.prepareStatement("SELECT UserID FROM Users WHERE Username = ?");
+            ps.setString(1, Username);
+            ResultSet results = ps.executeQuery();
+            JSONObject response = new JSONObject();
+            if (results.next()) {
+                response.put("UserID", results.getInt(1));
             }
+            System.out.println(response.toString());
+            return response.toString();
+        } catch (Exception exception) {
+            System.out.println("Database error: " + exception.getMessage());
+            return "{\"Error\": \"Unable to get item.  Error code xx.\"}";
+        }
     }
 
     @GET
@@ -112,6 +117,8 @@ public class Users {
     public String userNew(@FormDataParam("Username") String Username, @FormDataParam("Password") String Password, @FormDataParam("Email") String Email) {
         System.out.println("Invoked Users.userNew()");
         String date = java.time.LocalDate.now().toString();
+        Password = generateHash(Password);
+
         try {
             PreparedStatement ps = Main.db.prepareStatement("INSERT INTO Users (Username, Password, Email, StartDate, Activity) VALUES (?, ?, ?, ?, ?)");
             ps.setString(1, Username);
@@ -148,6 +155,7 @@ public class Users {
     @Path("login")
     public String loginUser(@FormDataParam("Username") String Username, @FormDataParam("Password") String Password){
         System.out.println("Invoked loginUser() on path user/login");
+        Password = generateHash(Password);
         try{
             PreparedStatement ps1 = Main.db.prepareStatement("SELECT Password FROM Users WHERE Username = ?");
             ps1.setString(1, Username);
@@ -200,6 +208,16 @@ public class Users {
         } catch (Exception exception) {
             System.out.println("Database error" + exception.getMessage());
             return false;
+        }
+    }
+
+    public static String generateHash(String text) {
+        try {
+            MessageDigest hasher = MessageDigest.getInstance("MD5");
+            hasher.update(text.getBytes());
+            return DatatypeConverter.printHexBinary(hasher.digest()).toUpperCase();
+        } catch (NoSuchAlgorithmException nsae) {
+            return nsae.getMessage();
         }
     }
 
