@@ -100,4 +100,26 @@ public class Leaderboards {
             return "{\"Error\": \"Unable to list items.  Error code xx.\"}";
         }
     }
+
+    @GET
+    @Path("list")
+    public String leaderboardList(){
+        System.out.println("Invoked Leaderboards.leaderboardList()");
+        JSONArray response = new JSONArray();
+        try {
+            PreparedStatement ps = Main.db.prepareStatement("SELECT UserID, GameID, Score FROM Leaderboards");
+            ResultSet results = ps.executeQuery();
+            while (results.next()==true) {
+                JSONObject row = new JSONObject();
+                row.put("UserID", results.getInt(1));
+                row.put("GameID", results.getInt(2));
+                row.put("Score", results.getInt(3));
+                response.add(row);
+            }
+            return response.toString();
+        } catch (Exception exception) {
+            System.out.println("Database error: " + exception.getMessage());
+            return "{\"Error\": \"Unable to list items.  Error code xx.\"}";
+        }
+    }
 }

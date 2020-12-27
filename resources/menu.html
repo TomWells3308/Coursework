@@ -163,7 +163,7 @@
         }
 
         function displayProfile(dataUser, dataScore) {
-            console.log(dataScore);
+            console.log("Invoked displayProfile()");
             let score = 0;
             let game;
             for(let i = 0; i< dataScore.length; i++){
@@ -186,14 +186,15 @@
             }
             document.getElementById("profile").innerHTML = "<div>Username: " + dataUser.Username + "</div><div>Top Score: " + score + "</div><div> Top Game: " + game + "</div>";
         }
+        //localhost:8081/menu.html
     </script>
 </head>
 <body onload="pageLoad()">
     <div style="width: 100%;">
         <canvas id="menu"></canvas>
     </div>
-    <div id="profile" style="position: absolute; left: 400px; top: 168px; border-width:1px; border-style: solid; font-size: 48px; height:679px; width: 1200px; text-align: center">
-        <div style="margin-top: 300px">Please Login To See Profile</div>
+    <div id="profile" style="position: absolute; left: 400px; top: 168px; border-width:1px; border-style: solid; font-size: 48px; height:679px; width: 1200px; text-align: center; line-height: 220px; display: inline-block; vertical-align: middle">
+        <div>Please Login To See Profile</div>
     </div>
 </body>
 </html>
