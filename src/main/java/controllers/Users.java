@@ -33,10 +33,10 @@ import java.security.NoSuchAlgorithmException;
 
 public class Users {
     @GET
-    @Path("get/{UserID}")
-    public String userGet(@PathParam("UserID") Integer UserID, @FormDataParam("Token") String Token) {
+    @Path("get/{UserID}/{token}")
+    public String userGet(@PathParam("UserID") Integer UserID, @PathParam("token") String token) {
         System.out.println("Invoked Users.userGet() with UserID " + UserID);
-        if(validToken(Token)) {
+        if(validToken(token)) {
             try {
                 PreparedStatement ps = Main.db.prepareStatement("SELECT UserID, Username, Password, Email, StartDate, Activity, Token FROM Users WHERE UserID = ?");
                 ps.setInt(1, UserID);

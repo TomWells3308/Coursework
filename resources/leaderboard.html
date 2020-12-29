@@ -3,13 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <title>Leaderboard</title>
+    <script type="module" src="/client/js/js.cookie.min.js"></script>
     <script>
         let w=0,h=0;
         let imageFiles = ["StackedDecksLogo.JPG"];
         let images = [];
         let mousePosition = {x: 0, y: 0}, leftMouseDown = false, rightMouseDown = false;
         let logoSizePosition = {x: 20, y:0, h:123, w:424};
-        let uniqueLeaderboard = 0;
+        let uniqueLeaderboard = 1;
+        let Usernames = [];
+        let Try = true;
         function fixSize(){
             w = window.innerWidth;
             h = window.innerHeight;
@@ -45,7 +48,7 @@
                 window.requestAnimationFrame(redraw);
             });
 
-            const canvas = document.getElementById('leaderboard')
+            const canvas = document.getElementById('leaderboard');
 
             canvas.addEventListener('mousemove', event => {
                 mousePosition.x = event.clientX;
@@ -68,10 +71,11 @@
                 }
             }, false);
             postListLeaderboardFull();
+            postListLeaderboardUnique();
         }
 
         function postListLeaderboardFull(){
-            console.log("Invoked postListLeaderboardFull()")
+            console.log("Invoked postListLeaderboardFull()");
 
             const url = "/leaderboard/list";
 
@@ -83,12 +87,59 @@
                 if (response.hasOwnProperty("Error")) {
                     alert(JSON.stringify(response));
                 } else{
-                    loadLeaderboard(response);
+                    loadLeaderboard(response, -1);
                 }
             })
         }
 
-        function loadLeaderboard(response){
+        function postListLeaderboardUnique(){
+            console.log("Invoked postListLeaderboardFull()");
+
+            const url = "/leaderboard/list-game/";
+
+            fetch(url + uniqueLeaderboard, {
+                method: "GET",
+            }).then(response => {
+                return response.json();
+            }).then(response => {
+                if (response.hasOwnProperty("Error")) {
+                    alert(JSON.stringify(response));
+                } else{
+                    loadLeaderboard(response, uniqueLeaderboard);
+                }
+            })
+        }
+
+        function startGetNames(UserIDs) {
+            for(let i=0; i < UserIDs.length; i++){
+                postUserGet(UserIDs[i], Cookies.get('token'));
+            }
+        }
+
+        function postUserGet(UserID, token){
+            console.log("Invoked postUserGet()");
+
+            const url = "/user/get/";
+
+            fetch(url + UserID + "/" + token, {
+                method: "GET",
+            }).then(response => {
+                return response.json();
+            }).then(response => {
+                if (response.hasOwnProperty("Error")) {
+                    alert(JSON.stringify(response));
+                } else{
+                    //console.log(response);
+                    addToUsernames(response);
+                }
+            })
+        }
+
+        function addToUsernames(response){
+            Usernames[Usernames.length] = response.Username;
+        }
+
+        function loadLeaderboard(response, GameID){
             let leaderboardArrayUserID = [];
             let leaderboardArrayScore = [];
             for(let i = 0; i< response.length; i++){
@@ -101,21 +152,47 @@
             }
             console.log(leaderboardArrayUserID);
             console.log(leaderboardArrayScore);
-            displayLeaderboard(leaderboardArrayUserID, leaderboardArrayScore, -1);
+            displayLeaderboard(leaderboardArrayUserID, leaderboardArrayScore, GameID);
         }
 
         function displayLeaderboard(UserIDs, Scores, num){
-            let addHTML = "";
-            for(let i = 0; i < UserIDs.length; i++){
-                if(num === -1){
-                     addHTML += "<tr>" + "<td>" + UserIDs[i] + "</td>" + "<td>" + (i+1) + "</td>" + "<td>" + Scores[i] + "</td>" + "</tr>"
-                }
+            let addHTML = "<tr><th>Username</th><th>Position</th><th>Score</th></tr>";
+            startGetNames(UserIDs);
+            console.log(Usernames);
+            for(let i = 0; i < 10; i++) {
+                console.log(Usernames);
+                addHTML += "<tr>" + "<td>" + Usernames[i] + "</td>" + "<td>" + (i + 1) + "</td>" + "<td>" + Scores[i] + "</td>" + "</tr>";
             }
-            document.getElementById("globalTable").innerHTML += addHTML;
+            if(num === -1) {
+                    document.getElementById("globalTable").innerHTML = addHTML;
+                    }
+                 else {
+                    document.getElementById("uniqueTable").innerHTML = addHTML;
+
+            }
         }
+
 
         function changeGame(game){
             uniqueLeaderboard = game;
+            let gameString;
+            document.getElementById("PokerButton").style = "position: absolute; width: 10%; height: 80px; left:56%; top:20%; font-size: 35px; font-weight: bold";
+            document.getElementById("OldMaidButton").style = "position: absolute; width: 10%; height: 80px; left:67.5%; top:20%; font-size: 35px; font-weight: bold";
+            document.getElementById("MafiaButton").style = "position: absolute; width: 10%; height: 80px; left:79%; top:20%; font-size: 35px; font-weight: bold";
+            if(game === 1){
+                gameString = "PokerButton";
+                document.getElementById(gameString).style = "position: absolute; width: 10%; height: 80px; left:56%; top:20%; font-size: 35px; font-weight: bold; background-color: grey";
+            }
+            else if(game === 2){
+                gameString = "OldMaidButton";
+                document.getElementById(gameString).style = "position: absolute; width: 10%; height: 80px; left:67.5%; top:20%; font-size: 35px; font-weight: bold; background-color: grey";
+            }
+            else {
+                gameString = "MafiaButton";
+                document.getElementById(gameString).style = "position: absolute; width: 10%; height: 80px; left:79%; top:20%; font-size: 35px; font-weight: bold; background-color: grey";
+
+            }
+            pageLoad();
         }
 
         function redraw(){
@@ -149,25 +226,15 @@
 
 <div>
     <button style="position: absolute; width: 10%; height: 80px; left:22.5%; top:20%; font-size: 35px; font-weight: bold" class="button">Global</button>
-    <button id="PokerButton" style="position: absolute; width: 10%; height: 80px; left:56%; top:20%; font-size: 35px; font-weight: bold" class="button" onclick="changeGame(0);">Poker</button>
-    <button id="OldMaidButton" style="position: absolute; width: 10%; height: 80px; left:67.5%; top:20%; font-size: 35px; font-weight: bold" class="button" onclick="changeGame(1);">Old Maid</button>
-    <button id="MafiaButton" style="position: absolute; width: 10%; height: 80px; left:79%; top:20%; font-size: 35px; font-weight: bold" class="button" onclick="changeGame(2);">Mafia</button>
+    <button id="PokerButton" style="position: absolute; width: 10%; height: 80px; left:56%; top:20%; font-size: 35px; font-weight: bold; background-color: grey" class="button" onclick="changeGame(1);">Poker</button>
+    <button id="OldMaidButton" style="position: absolute; width: 10%; height: 80px; left:67.5%; top:20%; font-size: 35px; font-weight: bold" class="button" onclick="changeGame(2);">Old Maid</button>
+    <button id="MafiaButton" style="position: absolute; width: 10%; height: 80px; left:79%; top:20%; font-size: 35px; font-weight: bold" class="button" onclick="changeGame(3);">Mafia</button>
     <table id="globalTable" style="position: absolute; width:35%; height: 50%; left: 10%; top: 30%; border-collapse: collapse">
-        <tr>
-            <th>Username</th>
-            <th>Position</th>
-            <th>Score</th>
-        </tr>
     </table>
 </div>
 
 <div>
-    <table style="position: absolute; width:35%; height: 50%; left: 55%; top: 30%; border-collapse: collapse">
-        <tr>
-            <th>Username</th>
-            <th>Position</th>
-            <th>Score</th>
-        </tr>
+    <table id="uniqueTable" style="position: absolute; width:35%; height: 50%; left: 55%; top: 30%; border-collapse: collapse">
     </table>
 </div>
 
