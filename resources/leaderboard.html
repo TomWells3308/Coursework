@@ -11,8 +11,7 @@
         let mousePosition = {x: 0, y: 0}, leftMouseDown = false, rightMouseDown = false;
         let logoSizePosition = {x: 20, y:0, h:123, w:424};
         let uniqueLeaderboard = 1;
-        let Usernames = [];
-        let Try = true;
+
         function fixSize(){
             w = window.innerWidth;
             h = window.innerHeight;
@@ -87,15 +86,80 @@
                 if (response.hasOwnProperty("Error")) {
                     alert(JSON.stringify(response));
                 } else{
-                    loadLeaderboard(response, -1);
+                    toArrayFull(response);
                 }
             })
+        }
+
+        function toArrayFull(response) {
+            console.log(response);
+            let userIDArray = [];
+            let scoreArray = [];
+            for(let i = 0; i < response.length-1; i++){
+                if(userIDArray.includes(response[i].UserID)){
+                    scoreArray[userIDArray.indexOf(response[i].UserID)] += response[i].Score;
+                } else {
+                    userIDArray[userIDArray.length] = response[i].UserID;
+                    scoreArray[scoreArray.length] = response[i].Score;
+                }
+            }
+            console.log(userIDArray);
+            console.log(scoreArray);
+            bubbleSort(userIDArray, scoreArray)
+        }
+
+        function bubbleSort(IDs, Scores){
+            let temp;
+            let swapped = true;
+            while(swapped){
+                swapped = false;
+                for(let i = 0; i < Scores.length; i++){
+                    if(Scores[i] < Scores[i+1]){
+                        temp = Scores[i];
+                        Scores[i] = Scores[i+1];
+                        Scores[i+1] = temp;
+                        temp = IDs[i];
+                        IDs[i] = IDs[i+1];
+                        IDs[i+1] = temp;
+                        swapped = true;
+                    }
+                }
+            }
+            userList(IDs, Scores, -1);
+        }
+
+        function userList(IDs, Scores, game){
+            console.log("Invoked userList()");
+
+            const url = "/user/list";
+
+            fetch(url , {
+                method: "GET",
+            }).then(response => {
+                return response.json();
+            }).then(response => {
+                if (response.hasOwnProperty("Error")) {
+                    alert(JSON.stringify(response));
+                } else{
+                    IDtoUsername(IDs, Scores, response, game);
+                }
+            })
+        }
+
+        function IDtoUsername(IDs, Scores, response, game){
+            let Usernames = [];
+            for(let i = 0; i < response.length; i++){
+                if(IDs.includes(response[i].UserID)){
+                    Usernames[IDs.indexOf(response[i].UserID)] = response[i].Username;
+                }
+            }
+            displayLeaderboard(Usernames, Scores, game);
         }
 
         function postListLeaderboardUnique(){
             console.log("Invoked postListLeaderboardFull()");
 
-            const url = "/leaderboard/list-game/";
+            const url = "/leaderboard/list-game10/";
 
             fetch(url + uniqueLeaderboard, {
                 method: "GET",
@@ -105,63 +169,33 @@
                 if (response.hasOwnProperty("Error")) {
                     alert(JSON.stringify(response));
                 } else{
-                    loadLeaderboard(response, uniqueLeaderboard);
+                    toArrayUnique(response);
                 }
             })
         }
 
-        function startGetNames(UserIDs) {
-            for(let i=0; i < UserIDs.length; i++){
-                postUserGet(UserIDs[i], Cookies.get('token'));
+        function toArrayUnique(response) {
+            let UserIDs = [];
+            let Scores = [];
+            for(let i = 0; i < response.length-1; i++){
+                UserIDs[i] = response[i].UserID;
+                Scores[i] = response[i].Score;
             }
+            userList(UserIDs, Scores, uniqueLeaderboard)
         }
 
-        function postUserGet(UserID, token){
-            console.log("Invoked postUserGet()");
-
-            const url = "/user/get/";
-
-            fetch(url + UserID + "/" + token, {
-                method: "GET",
-            }).then(response => {
-                return response.json();
-            }).then(response => {
-                if (response.hasOwnProperty("Error")) {
-                    alert(JSON.stringify(response));
-                } else{
-                    //console.log(response);
-                    addToUsernames(response);
-                }
-            })
-        }
-
-        function addToUsernames(response){
-            Usernames[Usernames.length] = response.Username;
-        }
-
-        function loadLeaderboard(response, GameID){
-            let leaderboardArrayUserID = [];
-            let leaderboardArrayScore = [];
-            for(let i = 0; i< response.length; i++){
-                if(leaderboardArrayUserID.includes(response[i].UserID)){
-                    leaderboardArrayScore[leaderboardArrayUserID.indexOf(response[i].UserID)] += response[i].Score;
-                } else {
-                    leaderboardArrayUserID[leaderboardArrayUserID.length] = response[i].UserID;
-                    leaderboardArrayScore[leaderboardArrayScore.length] = response[i].Score;
-                }
-            }
-            console.log(leaderboardArrayUserID);
-            console.log(leaderboardArrayScore);
-            displayLeaderboard(leaderboardArrayUserID, leaderboardArrayScore, GameID);
-        }
-
-        function displayLeaderboard(UserIDs, Scores, num){
-            let addHTML = "<tr><th>Username</th><th>Position</th><th>Score</th></tr>";
-            startGetNames(UserIDs);
+        function displayLeaderboard(Usernames, Scores, num){
+            console.log("Invoked displayLeaderboard() with GameID: " + num);
             console.log(Usernames);
+            console.log(Scores);
+            let addHTML = "<tr><th>Username</th><th>Position</th><th>Score</th></tr>";
             for(let i = 0; i < 10; i++) {
-                console.log(Usernames);
-                addHTML += "<tr>" + "<td>" + Usernames[i] + "</td>" + "<td>" + (i + 1) + "</td>" + "<td>" + Scores[i] + "</td>" + "</tr>";
+                if(Cookies.get("token") === undefined){
+                    addHTML += "<tr>" + "<td>Please Login to See Users</td>" + "<td>" + (i + 1) + "</td>" + "<td>" + Scores[i] + "</td>" + "</tr>";
+
+                } else{
+                    addHTML += "<tr>" + "<td>" + Usernames[i] + "</td>" + "<td>" + (i + 1) + "</td>" + "<td>" + Scores[i] + "</td>" + "</tr>";
+                }
             }
             if(num === -1) {
                     document.getElementById("globalTable").innerHTML = addHTML;

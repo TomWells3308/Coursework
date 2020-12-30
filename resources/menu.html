@@ -103,25 +103,45 @@
                 window.open("menu.html", "_self");
             }
             if((leftMouseDown) && (mousePosition.x <= (friendsSizePosition.x + friendsSizePosition.w)) && (mousePosition.x >= friendsSizePosition.x) && (mousePosition.y <= (friendsSizePosition.h + friendsSizePosition.y)) && (mousePosition.y >= friendsSizePosition.y)){
-                window.open("friends.html", "_self");
+                if(Cookies.get("token")===undefined){
+                    alert("Please Login to view Friends")
+                } else{
+                    window.open("friends.html", "_self");
+                }
             }
             if((leftMouseDown) && (mousePosition.x <= (leaderboardSizePosition.x + leaderboardSizePosition.w)) && (mousePosition.x >= leaderboardSizePosition.x) && (mousePosition.y <= (leaderboardSizePosition.h + leaderboardSizePosition.y)) && (mousePosition.y >= leaderboardSizePosition.y)){
                 window.open("leaderboard.html", "_self");
             }
             if((leftMouseDown) && (mousePosition.x <= (settingsSizePosition.x + settingsSizePosition.w)) && (mousePosition.x >= settingsSizePosition.x) && (mousePosition.y <= (settingsSizePosition.h + settingsSizePosition.y)) && (mousePosition.y >= settingsSizePosition.y)){
-                window.open("settings.html", "_self");
+                if(Cookies.get("token")===undefined){
+                    alert("Please Login to Change Settings")
+                } else{
+                    window.open("settings.html", "_self");
+                }
             }
             if((leftMouseDown) && (mousePosition.x <= (w-310 + loginSizePosition.w)) && (mousePosition.x >= w-310) && (mousePosition.y <= (loginSizePosition.h + loginSizePosition.y)) && (mousePosition.y >= loginSizePosition.y)){
                 window.open("login.html", "_self");
             }
             if((leftMouseDown) && (mousePosition.x <= (pokerSizePosition.x + pokerSizePosition.w)) && (mousePosition.x >= pokerSizePosition.x) && (mousePosition.y <= (pokerSizePosition.h + pokerSizePosition.y)) && (mousePosition.y >= pokerSizePosition.y)){
-                window.open("game1.html", "_self");
+                if(Cookies.get("token")===undefined){
+                    alert("Please Login to Play Games")
+                } else{
+                    window.open("game1.html", "_self");
+                }
             }
             if((leftMouseDown) && (mousePosition.x <= (oldMaidSizePosition.x + oldMaidSizePosition.w)) && (mousePosition.x >= oldMaidSizePosition.x) && (mousePosition.y <= (oldMaidSizePosition.h + oldMaidSizePosition.y)) && (mousePosition.y >= oldMaidSizePosition.y)){
-                window.open("game2.html", "_self");
+                if(Cookies.get("token")===undefined){
+                    alert("Please Login to Play Games")
+                } else {
+                    window.open("game2.html", "_self");
+                }
             }
             if((leftMouseDown) && (mousePosition.x <= (mafiaSizePosition.x + mafiaSizePosition.w)) && (mousePosition.x >= mafiaSizePosition.x) && (mousePosition.y <= (mafiaSizePosition.h + mafiaSizePosition.y)) && (mousePosition.y >= mafiaSizePosition.y)){
-                window.open("game3.html", "_self");
+                if(Cookies.get("token")===undefined){
+                    alert("Please Login to Play Games")
+                } else{
+                    window.open("game3.html", "_self");
+                }
             }
             window.requestAnimationFrame(redraw);
         }

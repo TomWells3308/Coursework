@@ -221,4 +221,24 @@ public class Users {
         }
     }
 
+    @GET
+    @Path("list")
+    public String usersList(){
+        System.out.println("Invoked Users.usersList()");
+        JSONArray response = new JSONArray();
+        try {
+            PreparedStatement ps = Main.db.prepareStatement("SELECT UserID, Username FROM Users");
+            ResultSet results = ps.executeQuery();
+            while (results.next()==true) {
+                JSONObject row = new JSONObject();
+                row.put("UserID", results.getInt(1));
+                row.put("Username", results.getString(2));
+                response.add(row);
+            }
+            return response.toString();
+        } catch (Exception exception) {
+            System.out.println("Database error: " + exception.getMessage());
+            return "{\"Error\": \"Unable to list items.  Error code xx.\"}";
+        }
+    }
 }
