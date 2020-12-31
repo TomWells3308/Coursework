@@ -168,8 +168,13 @@ public class Users {
                     ps2.setString(1, token);
                     ps2.setString(2, Username);
                     ps2.executeUpdate();
+                    PreparedStatement ps3 = Main.db.prepareStatement("SELECT UserID From Users WHERE Username = ?");
+                    ps3.setString(1, Username);
+                    ResultSet usernameResults = ps3.executeQuery();
+                    int UserID = usernameResults.getInt(1);
                     JSONObject userDetails = new JSONObject();
                     userDetails.put("token", token);
+                    userDetails.put("UserID", UserID);
                     return userDetails.toString();
                 } else {
                     return "{\"Error\": \"Incorrect password!\"}";

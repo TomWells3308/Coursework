@@ -105,6 +105,7 @@
                     alert(JSON.stringify(response));        // if it does, convert JSON object to string and alert
                 } else {
                     Cookies.set("token", response.token);
+                    Cookies.set("UserID", response.UserID);
                     window.open("menu.html", "_self");       //open index.html in same tab
                 }
             });
@@ -213,10 +214,7 @@
                 if(response.hasOwnProperty("Error")){
                     alert("Error in settings initialization.");
                     alert(JSON.stringify(response));
-                } //else {
-                    //alert("Account Created!! Please Login!!");
-                    //window.location.href = "login.html";
-                //}
+                }
             });
         }
 

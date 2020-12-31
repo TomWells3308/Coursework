@@ -65,8 +65,8 @@ public class Settings {
     }
   
     @GET
-    @Path("get/{UserID}")
-    public String settingsGet(@PathParam("UserID") Integer UserID, @FormDataParam("token") String token) {
+    @Path("get/{UserID}/{token}")
+    public String settingsGet(@PathParam("UserID") Integer UserID, @PathParam("token") String token) {
         System.out.println("Invoked Settings.settingsGet() with UserID " + UserID);
         if (Users.validToken(token)) {
             try {

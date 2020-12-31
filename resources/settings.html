@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <title>Settings</title>
+    <script type="module" src="/client/js/js.cookie.min.js"></script>
     <script>
         let w=0,h=0;
         let imageFiles = ["StackedDecksLogo.JPG"];
         let images = [];
         let mousePosition = {x: 0, y: 0}, leftMouseDown = false, rightMouseDown = false;
         let logoSizePosition = {x: 20, y:0, h:123, w:424};
-        let MusicVolume, SFXVolume, Animations, Chat;
+        let musicVolume, SFXVolume, animations, chat;
+
         function fixSize(){
             w = window.innerWidth;
             h = window.innerHeight;
@@ -67,6 +69,118 @@
                     rightMouseDown = false;
                 }
             }, false);
+            getSettings();
+        }
+
+        function getSettings(){
+            console.log("Invoked getSettings()");
+
+            let url = "/settings/get/";
+            let UserID = Cookies.get('UserID');
+            let token = Cookies.get('token');
+
+            fetch(url + UserID + "/" + token, {
+                method: "GET",
+            }).then(response => {
+                return response.json();
+            }).then(response => {
+                if (response.hasOwnProperty("Error")) {
+                    alert(JSON.stringify(response));
+                } else {
+                    setSettings(response);
+                }
+            })
+        }
+
+        function setSettings(response) {
+            console.log("Invoked setSettings() with data");
+            console.log(response);
+            SFXVolume = response.VolumeSFX;
+            musicVolume = response.VolumeMusic;
+            animations = response.Animations;
+            chat = response.Chat;
+        }
+
+        function drawSettings10(){
+            const canvas = document.getElementById("settings");
+            const context = canvas.getContext("2d");
+            let x = (0.128*w);
+            let y;
+            for(let i = 1; i < 11; i++){
+                y = (0.1899*h);
+                if(i <= SFXVolume){
+                    context.beginPath();
+                    context.fillStyle = "#686868";
+                    context.fillRect(x, y, (0.561*w)/10, 58.4);
+                    context.stroke();
+                    }
+                context.beginPath();
+                context.strokeStyle = "#000000";
+                context.rect(x, y, (0.561*w)/10, 58.4);
+                context.stroke();
+
+                y += 0.197*h;
+
+                if(i <= musicVolume){
+                    context.beginPath();
+                    context.fillStyle = "#686868";
+                    context.fillRect(x, y, (0.561*w)/10, 58.4);
+                    context.stroke();
+                }
+                context.beginPath();
+                context.strokeStyle = "#000000";
+                context.rect(x, y, (0.561*w)/10, 58.4);
+                context.stroke();
+
+
+                x += (0.561*w)/10;
+            }
+            drawSettingsBoolean();
+        }
+
+        function drawSettingsBoolean() {
+            const canvas = document.getElementById("settings");
+            const context = canvas.getContext("2d");
+            let x = (0.29*w);
+            let y = (0.585*h);
+
+            context.beginPath();
+            context.strokeStyle = "#000000";
+            context.rect(x, y, (0.561*w)/5, 120);
+            context.rect(x+((0.561*w)/5), y, (0.561*w)/5, 120);
+            context.stroke();
+
+            if(animations){
+                context.beginPath();
+                context.fillStyle = "#686868";
+                context.fillRect(x, y, (0.561*w)/5, 120);
+                context.stroke();
+            } else {
+                context.beginPath();
+                context.fillStyle = "#686868";
+                context.fillRect(x+((0.561*w)/5), y, (0.561*w)/5, 120);
+                context.stroke();
+            }
+
+            y+=(0.2*h);
+
+            context.beginPath();
+            context.strokeStyle = "#000000";
+            context.rect(x, y, (0.561*w)/5, 120);
+            context.rect(x+((0.561*w)/5), y, (0.561*w)/5, 120);
+            context.stroke();
+
+            if(chat){
+                context.beginPath();
+                context.fillStyle = "#686868";
+                context.fillRect(x, y, (0.561*w)/5, 120);
+                context.stroke();
+            } else {
+                context.beginPath();
+                context.fillStyle = "#686868";
+                context.fillRect(x+((0.561*w)/5), y, (0.561*w)/5, 120);
+                context.stroke();
+            }
         }
 
         function redraw(){
@@ -78,10 +192,81 @@
             context.fillStyle = "#ffffff";
             context.fillRect(20, 0, w-60, h-20);
             context.drawImage(images[0], logoSizePosition.x, logoSizePosition.y);
+
+            drawSettings10();
+
             if((leftMouseDown) && (mousePosition.x <= (logoSizePosition.x + logoSizePosition.w)) && (mousePosition.x >= logoSizePosition.x) && (mousePosition.y <= logoSizePosition.h)){
                 window.location.replace("http://localhost:8081/menu.html");
             }
             window.requestAnimationFrame(redraw);
+        }
+
+        function updateSFX(num) {
+            console.log("Invoked updateSFX() with num: " + num);
+            if(num === 1){
+                if(SFXVolume !== 10){
+                    SFXVolume = SFXVolume + num;
+
+                }
+            } else {
+                if(SFXVolume !== 0){
+                    SFXVolume = SFXVolume + num;
+                }
+            }
+        }
+
+        function updateMusic(num) {
+            console.log("Invoked updateMusic() with num: " + num);
+            if(num === 1){
+                if(musicVolume !== 10){
+                    musicVolume = musicVolume + num;
+
+                }
+            } else {
+                if(musicVolume !== 0){
+                    musicVolume = musicVolume + num;
+                }
+            }
+        }
+
+        function updateAnimations(tf) {
+            animations = tf;
+            redraw();
+        }
+
+        function updateChat(tf) {
+            chat = tf;
+            redraw();
+        }
+
+        function saveSettings() {
+            console.log("Invoked saveSettings()");
+
+            let url = "/settings/update";
+            let formData = new FormData();
+
+            formData.append('VolumeSFX', SFXVolume);
+            formData.append('VolumeMusic', musicVolume);
+            formData.append('Animations', animations);
+            formData.append('Chat', chat);
+            formData.append('token', Cookies.get('token'));
+            formData.append('UserID', Cookies.get('UserID'));
+
+            fetch(url, {
+                method: "POST",
+                body: formData,
+            }).then(response => {
+                return response.json();
+            }).then(response => {
+                if(response.hasOwnProperty("Error")){
+                    alert("Error saving Settings");
+                    alert(JSON.stringify(response));
+                }
+                else{
+                    alert("Settings Updated!");
+                    window.open("menu.html", "_self");       //open index.html in same tab
+                }
+            });
         }
     </script>
 </head>
@@ -90,11 +275,31 @@
     <canvas id="settings"></canvas>
 </div>
 <div>
-    <div style="position: absolute; left:35%; top:15%; font-size: 40px">
+    <div style="position: absolute; left:36%; top:15%; font-size: 40px">
         SFX Volume
     </div>
-    <button style="position: absolute; width: 60px; height: 60px; left:70%; top: 20%; font-size: 40px; font-weight: bold" class="button" onclick="updateSFX(-1);">←</button>
-    <button style="position: absolute; width: 60px; height: 60px; left:10%; top: 20%; font-size: 40px; font-weight: bold" class="button" onclick="updateSFX(1);">→</button>
+    <button style="position: absolute; width: 60px; height: 60px; left:10%; top: 20%; font-size: 40px; font-weight: bold" class="button" onclick="updateSFX(-1);">←</button>
+    <button style="position: absolute; width: 60px; height: 60px; left:70%; top: 20%; font-size: 40px; font-weight: bold" class="button" onclick="updateSFX(1);">→</button>
+    <div style="position: absolute; left:35.5%; top:35%; font-size: 40px">
+        Music Volume
+    </div>
+    <button style="position: absolute; width: 60px; height: 60px; left:10%; top: 40%; font-size: 40px; font-weight: bold" class="button" onclick="updateMusic(-1);">←</button>
+    <button style="position: absolute; width: 60px; height: 60px; left:70%; top: 40%; font-size: 40px; font-weight: bold" class="button" onclick="updateMusic(1);">→</button>
+
+    <div style="position: absolute; left:36%; top:55%; font-size: 40px">
+        Animations
+    </div>
+
+    <button style="position: absolute; background-color: transparent; border-color: transparent; width: 11.3%; height: 120px; left:29.6%; top: 60.2%; font-size: 35px; font-weight: bold" class="button" onclick="updateAnimations(true);">On</button>
+    <button style="position: absolute; background-color: transparent; border-color: transparent; width: 11.3%; height: 120px; left:40.9%; top: 60.2%; font-size: 35px; font-weight: bold" class="button" onclick="updateAnimations(false);">Off</button>
+
+    <div style="position: absolute; left:39%; top:75%; font-size: 40px">
+        Chat
+    </div>
+
+    <button style="position: absolute; background-color: transparent; border-color: transparent; width: 11.3%; height: 120px; left:29.6%; top: 80.5%; font-size: 35px; font-weight: bold" class="button" onclick="updateChat(true);">On</button>
+    <button style="position: absolute; background-color: transparent; border-color: transparent; width: 11.3%; height: 120px; left:40.9%; top: 80.5%; font-size: 35px; font-weight: bold" class="button" onclick="updateChat(false);">Off</button>
+
 </div>
 <button style="position: absolute; width: 200px; height: 80px; left:85%; top: 85%; font-size: 35px; font-weight: bold" class="button" onclick="saveSettings();">Save</button>
 </body>
