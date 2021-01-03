@@ -114,6 +114,7 @@
         function postUserLogout(){
             console.log("Invoked postUserLogout() ");
             Cookies.remove("token");
+            Cookies.remove("UserID");
             window.location.href = "menu.html"
         }
 

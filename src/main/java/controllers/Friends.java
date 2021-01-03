@@ -42,19 +42,73 @@ public class Friends {
     }
 
     @POST
-    @Path("delete/{UserID_1}")
-    public String deleteFriend(@PathParam("UserID_1") Integer UserID_1, @FormDataParam("UserID_2") Integer UserID_2){
+    @Path("delete")
+    public String deleteFriend(@FormDataParam("UserID_1") Integer UserID_1, @FormDataParam("UserID_2") Integer UserID_2){
         System.out.println("Invoked Users.deleteFriendship()");
         try{
             PreparedStatement ps = Main.db.prepareStatement("DELETE FROM Friendships WHERE UserID_1 = ? AND UserID_2 = ?");
             ps.setInt(1, UserID_1);
             ps.setInt(2, UserID_2);
             ps.execute();
-            return "{\"OK\": \"Friendship deleted\"}";
+            try{
+                PreparedStatement ps2 = Main.db.prepareStatement("DELETE FROM Friendships WHERE UserID_1 = ? AND UserID_2 = ?");
+                ps2.setInt(1, UserID_2);
+                ps2.setInt(2, UserID_1);
+                ps2.execute();
+                return "{\"OK\": \"Friendship deleted\"}";
+            }
+            catch (Exception exception){
+                System.out.println("Database error: " + exception.getMessage());
+                return "{\"Error\": \"Unable to delete item, please see server console for more info.\"}";
+            }
         }
         catch (Exception exception){
             System.out.println("Database error: " + exception.getMessage());
             return "{\"Error\": \"Unable to delete item, please see server console for more info.\"}";
+        }
+    }
+
+    @GET
+    @Path("list")
+    public String listFriend(){
+        System.out.println("Invoked Friends.listFriend()");
+        JSONArray response = new JSONArray();
+        try {
+            PreparedStatement ps = Main.db.prepareStatement("SELECT UserID_1, UserID_2 FROM Friendships");
+            ResultSet results = ps.executeQuery();
+            while (results.next()==true) {
+                JSONObject row = new JSONObject();
+                row.put("UserID_1", results.getInt(1));
+                row.put("UserID_2", results.getInt(2));
+                response.add(row);
+            }
+            return response.toString();
+        } catch (Exception exception) {
+            System.out.println("Database error: " + exception.getMessage());
+            return "{\"Error\": \"Unable to list items.  Error code xx.\"}";
+        }
+    }
+
+    @GET
+    @Path("list-user/{UserID}")
+    public String listFriendUserID(@PathParam("UserID") int UserID){
+        System.out.println("Invoked Friends.listFriend()");
+        JSONArray response = new JSONArray();
+        try {
+            PreparedStatement ps = Main.db.prepareStatement("SELECT UserID_1, UserID_2 FROM Friendships WHERE UserID_1 = ? OR UserID_2 = ?");
+            ps.setInt(1, UserID);
+            ps.setInt(2, UserID);
+            ResultSet results = ps.executeQuery();
+            while (results.next()==true) {
+                JSONObject row = new JSONObject();
+                row.put("UserID_1", results.getInt(1));
+                row.put("UserID_2", results.getInt(2));
+                response.add(row);
+            }
+            return response.toString();
+        } catch (Exception exception) {
+            System.out.println("Database error: " + exception.getMessage());
+            return "{\"Error\": \"Unable to list items.  Error code xx.\"}";
         }
     }
 }
