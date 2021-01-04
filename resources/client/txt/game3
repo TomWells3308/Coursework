@@ -1,0 +1,17 @@
+ROLES
+King = Detective
+Queen = Healer
+Jack = Mafia
+Else = Townspeople
+NIGHT CYCLE
+1. The Mafia wake up and choose a victim. At this time, the Mafia members will be able to see all their fellow members. Then the Mafia “sleeps” again until “morning.”
+2. While everyone else is still asleep, the Detectives wake up, they choose someone they suspect is a member of the Mafia. If the Detective is correct, the Mafia member is revealed to the Detective. If not, the Detective now knows the identity of an innocent. The Detective then goes back to “sleep.”
+3. Next, the Healers wake up, then they choose a person to save. The Healer can choose to save himself and thus survive the night. If the Doctor chooses another player and that individual is chosen by the Mafia to be killed, nothing will happen to the victim – they are “saved.”
+DAY CYCLE
+1. The players are informed of who “died” in the previous night.
+2. The players discuss recent events. The game moves on to the accusation.
+3. There is a vote and players indicate who they believe is guilty.
+4. If the majority voted for one person they are removed from the game and the Night Cycle begins again.
+WIN CONDITIONS
+Innocents - The Innocents win when all the mafia have been voted off
+Mafia - The Mafia win if there is an equal number of Mafia and Innocents
