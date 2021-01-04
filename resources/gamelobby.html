@@ -3,11 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <title>Lobby</title>
-    <script src="lobby.js"></script>
+    <script type="module" src="/client/js/js.cookie.min.js"></script>
+    <script>
+        let w=0,h=0;
+        let imageFiles = ["StackedDecksLogo.JPG"];
+        let images = [];
+        let mousePosition = {x: 0, y: 0}, leftMouseDown = false, rightMouseDown = false;
+        let logoSizePosition = {x: 20, y:0, h:123, w:424};
+        function fixSize(){
+            w = window.innerWidth;
+            h = window.innerHeight;
+            const canvas = document.getElementById("lobby");
+            canvas.width = w;
+            canvas.height = h;
+        }
+
+        let loadImages = new Promise(function(resolve) {
+            let loadedImageCount = 0;
+
+            let loadCheck = function () {
+                loadedImageCount++;
+                if (loadedImageCount === imageFiles.length) {
+                    console.log("Success!");
+                    resolve();
+                }
+            };
+
+            for (let i of imageFiles) {
+                let img = new Image();
+                img.src = "/client/img/" + i;
+                console.log("Loading" + i);
+                img.onload = () => loadCheck();
+                images.push(img)
+            }
+        });
+
+        function pageLoad(){
+            window.addEventListener("resize", fixSize);
+            fixSize();
+            loadImages.then(()=> {
+                window.requestAnimationFrame(redraw);
+            });
+
+            const canvas = document.getElementById('lobby');
+
+            canvas.addEventListener('mousemove', event => {
+                mousePosition.x = event.clientX;
+                mousePosition.y = event.clientY;
+            }, false);
+
+            canvas.addEventListener('mousedown', event => {
+                if (event.button === 0) {
+                    leftMouseDown = true;
+                } else {
+                    rightMouseDown = true;
+                }
+            }, false);
+
+            canvas.addEventListener('mouseup', event => {
+                if (event.button === 0) {
+                    leftMouseDown = false;
+                } else {
+                    rightMouseDown = false;
+                }
+            }, false);
+
+            initializeGameSettings();
+        }
+
+        function initializeGameSettings(){
+            console.log("Invoked initializeGameSettings() with GameID: " +  Cookies.get("GameID"));
+            if(parseInt(Cookies.get("GameID"))===1){
+                //document.getElementById("gameSettings").innerHTML =
+            }
+        }
+
+        function redraw(){
+            const canvas = document.getElementById("lobby");
+            const context = canvas.getContext("2d");
+
+            context.fillStyle = "#400101";
+            context.fillRect(0, 0, w, h);
+            context.fillStyle = "#ffffff";
+            context.fillRect(20, 0, w-60, h-20);
+            context.drawImage(images[0], logoSizePosition.x, logoSizePosition.y);
+            if((leftMouseDown) && (mousePosition.x <= (logoSizePosition.x + logoSizePosition.w)) && (mousePosition.x >= logoSizePosition.x) && (mousePosition.y <= logoSizePosition.h)){
+                window.location.replace("http://localhost:8081/menu.html");
+            }
+            window.requestAnimationFrame(redraw);
+        }
+    </script>
 </head>
 <body onload="pageLoad()">
+<div style="font-size: 40px; position: fixed; top: 18%; left: 18%; font-weight: bold">Game Settings</div>
+
+<div style="position: absolute; left: 10%; top: 25%; width: 30%; height: 60%; border-style: solid; border-width: 1px;">
+    <form id="gameSettings">
+        <select name="players" id="players" style="position: absolute; left: 60%; top: 10%; width: 18%; height: 60px; font-size: 30px;">
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+        </select>
+        <input name="ante" id="ante" type="text" style="position: absolute; left: 60%; top: 25%; width: 25%; height: 60px; font-size: 30px;">
+        <input name="maxBet" id="maxBet" type="text" style="position: absolute; left: 60%; top: 40%; width: 25%; height: 60px; font-size: 30px;">
+        <input name="minBet" id="minBet" type="text" style="position: absolute; left: 60%; top: 40%; width: 25%; height: 60px; font-size: 30px;">
+    </form>
+</div>
+
+<div style="position: absolute; left: 851px; top: 200px; width: 700px; height: 600px; border-style: solid; border-width: 1px">
+    <div style="position: absolute; left:290px; top: 35px; font-size: 48px; font-weight: bold;: ">Sign-Up</div>
+    <div style="position: absolute; left: 112px; top:160px; font-size: 40px">Username:</div>
+    <div style="position: absolute; left: 120px; top:260px; font-size: 40px">Password:</div>
+    <div style="position: absolute; left: 120px; top:360px; font-size: 40px">Email:</div>
+
+    <form id="signUpForm" style="position: absolute; left: 310px;">
+        <input style="position: absolute; top: 158px; width: 250px; height: 50px" type="text" name="Username" id="UsernameSU">
+        <input style="position: absolute; top: 258px; width: 250px; height: 50px" type="password" name="Password" id="PasswordSU">
+        <input style="position: absolute; top: 358px; width: 250px; height: 50px" type="text" name="Email" id="EmailSU">
+    </form>
+    <button style="position: absolute; width: 200px; height: 80px; left:480px; top: 500px; font-size: 35px; font-weight: bold" class="button" onclick="postUserSignup();">Sign Up</button>
+</div>
+
 <div style="width: 100%;">
-    <canvas id="Lobby"></canvas>
+    <canvas id="lobby"></canvas>
 </div>
 </body>
 </html>

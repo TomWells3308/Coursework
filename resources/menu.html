@@ -126,21 +126,24 @@
                 if(Cookies.get("token")===undefined){
                     alert("Please Login to Play Games")
                 } else{
-                    window.open("game1.html", "_self");
+                    Cookies.set("GameID", 1);
+                    window.open("gamelobby.html", "_self");
                 }
             }
             if((leftMouseDown) && (mousePosition.x <= (oldMaidSizePosition.x + oldMaidSizePosition.w)) && (mousePosition.x >= oldMaidSizePosition.x) && (mousePosition.y <= (oldMaidSizePosition.h + oldMaidSizePosition.y)) && (mousePosition.y >= oldMaidSizePosition.y)){
                 if(Cookies.get("token")===undefined){
                     alert("Please Login to Play Games")
                 } else {
-                    window.open("game2.html", "_self");
+                    Cookies.set("GameID", 2);
+                    window.open("gamelobby.html", "_self");
                 }
             }
             if((leftMouseDown) && (mousePosition.x <= (mafiaSizePosition.x + mafiaSizePosition.w)) && (mousePosition.x >= mafiaSizePosition.x) && (mousePosition.y <= (mafiaSizePosition.h + mafiaSizePosition.y)) && (mousePosition.y >= mafiaSizePosition.y)){
                 if(Cookies.get("token")===undefined){
                     alert("Please Login to Play Games")
                 } else{
-                    window.open("game3.html", "_self");
+                    Cookies.set("GameID", 3);
+                    window.open("gamelobby.html", "_self");
                 }
             }
             window.requestAnimationFrame(redraw);
