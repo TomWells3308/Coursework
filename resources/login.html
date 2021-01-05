@@ -120,7 +120,7 @@
 
         function postUserSignup() {
             let formData = new FormData(document.getElementById('signUpForm'));
-            if(((formData.get('Username')).length > 1)&&((formData.get('Password')).length > 7)){
+            if(((formData.get('Username')).length > 1)&&((formData.get('Password')).length > 7)&&((formData.get('Username')).length < 13)&&((formData.get('Password')).length < 21)){
                 if(validateEmail(formData.get('Email'))){
                     postUserNew();
                 } else {
