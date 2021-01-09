@@ -14,14 +14,14 @@
         let rules1 = ["    <div style=\"font-size: 20px; font-weight: bold; text-align: center\">CARD VALUES/SCORING</div>\n" +
         "    While Poker is played in innumerable forms, a player who understands the values of the Poker hands and the principles of betting can play without difficulty in any type of Poker game. Except in a few versions of the game, a Poker hand consists of five cards. The various combinations of Poker hands rank from five of a kind (the highest) to no pair or nothing (the lowest):<br />\n" +
         "    Five of a Kind – This is the highest possible hand and can occur only in games where at least one card is wild, such as a joker, the two one-eyed jacks, or the four deuces. Examples of five of a kind would be four 10s and a wild card or two queens and three wild cards.<br />\n" + "    Five of a Kind – This is the highest possible hand and can occur only in games where at least one card is wild, such as a joker, the two one-eyed jacks, or the four deuces. Examples of five of a kind would be four 10s and a wild card or two queens and three wild cards.<br />\n" +
-        "    Straight Flush – This is the highest possible hand when only the standard pack is used, and there are no wild cards. A straight flush consists of five cards of the same suit in sequence, such as 10, 9, 8, 7, 6 of hearts. The highest-ranking straight flush is the A, K, Q, J, and 10 of one suit, and this combination has a special name: a royal flush or a royal straight flush. The odds on being dealt this hand are 1 in almost 650,000.<br />",
-        "    Four of a Kind – This is the next highest hand, and it ranks just below a straight flush. An example is four aces or four 3s. It does not matter what the fifth, unmatched card is.<br />\n" +
+        "    Straight Flush – This is the highest possible hand when only the standard pack is used, and there are no wild cards. A straight flush consists of five cards of the same suit in sequence, such as 10, 9, 8, 7, 6 of hearts. The highest-ranking straight flush is the A, K, Q, J, and 10 of one suit, and this combination has a special name: a royal flush or a royal straight flush. <br />",
+        "    The odds on being dealt this hand are 1 in almost 650,000. Four of a Kind – This is the next highest hand, and it ranks just below a straight flush. An example is four aces or four 3s. It does not matter what the fifth, unmatched card is.<br />\n" +
         "    Full House – This colorful hand is made up of three cards of one rank and two cards of another rank, such as three 8s and two 4s, or three aces and two 6s.<br />\n" +
         "    Flush – Five cards, all of the same suit, but not all in sequence, is a flush. An example is Q, 10, 7, 6, and 2 of clubs.<br />\n" +
         "    Straight – Five cards in sequence, but not all of the same suit is a straight. An example is 9♥, 8♣, 7♠, 6♦, 5♥.<br />\n" +
         "    Three of a Kind – This combination contains three cards of the same rank, and the other two cards each of a different rank, such as three jacks, a seven, and a four.<br />\n" +
         "    Two Pairs – This hand contains a pair of one rank and another pair of a different rank, plus any fifth card of a different rank, such as Q, Q, 7, 7, 4.<br />\n" +
-        "    One Pair – This frequent combination contains just one pair with the other three cards being of different rank. An example is 10, 10, K, 4, 3.<br />\n" +
+        "    One Pair – This frequent combination contains just one pair with the other three cards being of different rank. An example is 10, 10, K, 4, 3.<br />\n",
         "    No Pair – This very common hand contains \"nothing.\" None of the five cards pair up, nor are all five cards of the same suit or consecutive in rank. When more than one player has no pair, the hands are rated by the highest card each hand contains, so that an ace-high hand beats a king-high hand, and so on.<br />\n", "<div style=\"font-size: 20px; font-weight: bold; text-align: center\">BETTING</div>\n" +
         "    Betting is the key to Poker, for the game, in essence, is a game of chip management.\n" +
         "    In the course of each Poker deal, there will be one or more betting intervals in which the players have an opportunity to bet on their hands. Minimizing losses with poor hands and maximizing winnings with good hands is the underlying skill that Poker requires.\n" +
@@ -32,7 +32,32 @@
         "    If a player makes a bet or a raise that no other player calls, they win the pot without showing their hand. Thus, in Poker, there is a bluffing element, and the best combination of cards does not always win the pot! Bluffing is one of the key reasons why Poker is so popular.\n" +
         "    If a player wishes to remain in the game without betting, they \"check.\" This means, in effect, that the player is making a \"bet of nothing.\" A player may check provided no one before them in that betting interval has made a bet. If another player has bet, they cannot check but must at least call the bet or drop. A player who checks may raise a bet that has been raised by another player. This is called \"sandbagging,\" which is allowed, unless it has been decided beforehand that this practice is forbidden. If all players check during a round of play, the betting interval is over, and all the players still in the pot remain in the game.\n" +
         "    In each betting round, one player is designated as the first bettor, according to the rules of the game. The turn to bet always moves to the left, from player to player, and no one may check, bet, or even drop, except when it is their turn."];
-        let rules2 = [""]
+
+        let rules2 = ["    <div style=\"font-size: 20px; font-weight: bold; text-align: center\">OBJECT OF THE GAME</div>\n" +
+        "    The goal is to form and discard pairs of cards, and not to be left with the odd card (a queen) at the end.\n" +
+        "    <div style=\"font-size: 20px; font-weight: bold; text-align: center\">THE DEAL</div>\n" +
+        "    The pack is shuffled and they are dealt around, one at a time to each player, until all the cards have been handed out. Players do not need to have an equal number of cards.\n" +
+        "    <div style=\"font-size: 20px; font-weight: bold; text-align: center\">THE PLAY</div>\n" +
+        "    Each player removes all pairs from his hand face down. If a player has three-of-a-kind, they remove only two of those three cards. The next player then offers their hand, to the player on the left, who draws one card from it. This player discards any pair that may have been formed by the drawn card. The player then offers their own hand to the player on their left. Play proceeds in this way until all cards have been paired except one - the odd queen, which cannot be paired - and the player who has that card is the Old Maid!"];
+
+        let rules3 =["    <div style=\"font-size: 20px; font-weight: bold; text-align: center\">ROLES</div>\n" +
+        "    King = Detective<br />\n" +
+        "    Queen = Healer<br />\n" +
+        "    Jack = Mafia<br />\n" +
+        "    Else = Townspeople<br />\n" +
+        "    <div style=\"font-size: 20px; font-weight: bold; text-align: center\">NIGHT CYCLE</div>\n" +
+        "    1. The Mafia wake up and choose a victim. At this time, the Mafia members will be able to see all their fellow members. Then the Mafia “sleeps” again until “morning.”<br />\n" +
+        "    2. While everyone else is still asleep, the Detectives wake up, they choose someone they suspect is a member of the Mafia. If the Detective is correct, the Mafia member is revealed to the Detective. If not, the Detective now knows the identity of an innocent. The Detective then goes back to “sleep.”<br />\n" +
+        "    3. Next, the Healers wake up, then they choose a person to save. The Healer can choose to save himself and thus survive the night. If the Doctor chooses another player and that individual is chosen by the Mafia to be killed, nothing will happen to the victim – they are “saved.”<br />\n",
+        "    <div style=\"font-size: 20px; font-weight: bold; text-align: center\">DAY CYCLE</div>\n" +
+        "    1. The players are informed of who “died” in the previous night.<br />\n" +
+        "    2. The players discuss recent events. The game moves on to the accusation.<br />\n" +
+        "    3. There is a vote and players indicate who they believe is guilty.<br />\n" +
+        "    4. If the majority voted for one person they are removed from the game and the Night Cycle begins again.<br />\n" +
+        "    <div style=\"font-size: 20px; font-weight: bold; text-align: center\">WIN CONDITIONS</div>\n" +
+        "    Innocents - The Innocents win when all the mafia have been voted off\n" +
+        "    Mafia - The Mafia win if there is an equal number of Mafia and Innocents"];
+
         function fixSize(){
             w = window.innerWidth;
             h = window.innerHeight;
@@ -183,12 +208,43 @@
                 } else {
                     pagenum += num;
                 }
-            } else if(parseInt(Cookies.get("GameID"))===2){
-
-            } else{
-
+            } else if(parseInt(Cookies.get("GameID"))===3) {
+                if (pagenum === 0) {
+                    if (num !== -1) {
+                        pagenum += num;
+                    }
+                } else if (pagenum === rules3.length - 1) {
+                    if (num !== 1) {
+                        pagenum += num;
+                    }
+                } else {
+                    pagenum += num;
+                }
             }
             getRules();
+        }
+
+        function playGame(){
+
+            let formData = new FormData(document.getElementById('gameSettings'));
+
+            if(parseInt(Cookies.get("GameID"))===1){
+                Cookies.set("setting1", formData.get("players"));
+                Cookies.set("setting2", formData.get("ante"));
+                Cookies.set("setting3", formData.get("minBet"));
+                Cookies.set("setting4", formData.get("maxBet"));
+                Cookies.set("setting5", formData.get("wildcard"));
+                window.location.replace("http://localhost:8081/game1.html");
+            } else if(parseInt(Cookies.get("GameID"))===2){
+                Cookies.set("setting1", formData.get("players"));
+                window.location.replace("http://localhost:8081/game2.html");
+            } else {
+                Cookies.set("setting1", formData.get("players"));
+                Cookies.set("setting2", formData.get("mafia"));
+                Cookies.set("setting3", formData.get("healers"));
+                Cookies.set("setting1", formData.get("detectives"));
+                window.location.replace("http://localhost:8081/game3.html");
+            }
         }
 
         function redraw(){
@@ -217,16 +273,11 @@
 
 <div style="font-size: 40px; position: absolute; top: 18%; left: 58%; font-weight: bold">Rules</div>
 <div id="rules" style="position: absolute; left: 45%; top: 25%; width: 25%; height: 58%; border-style: solid; border-width: 1px; text-align: left; padding-left: 50px; padding-right: 50px; padding-top: 20px; line-height: 1.5; display: inline-block; vertical-align: middle">
-    OBJECT OF THE GAME
-    The goal is to form and discard pairs of cards, and not to be left with the odd card (a queen) at the end.
-    THE DEAL
-    Any player shuffles the pack and deals them around, one at a time to each player, until all the cards have been handed out. Players do not need to have an equal number of cards.
-    THE PLAY
-    Each player removes all pairs from his hand face down. If a player has three-of-a-kind, they remove only two of those three cards. The dealer then offers their hand, spread out face down, to the player on the left, who draws one card from it. This player discards any pair that may have been formed by the drawn card. The player then offers their own hand to the player on their left. Play proceeds in this way until all cards have been paired except one - the odd queen, which cannot be paired - and the player who has that card is the Old Maid!
 </div>
 
-<button style="position: absolute; width: 60px; height: 60px; left:10%; top: 20%; font-size: 40px; font-weight: bold" class="button" onclick="updatePage(-1);">←</button>
-<button style="position: absolute; width: 60px; height: 60px; left:70%; top: 20%; font-size: 40px; font-weight: bold" class="button" onclick="updatePage(1);">→</button>
+<button style="position: absolute; width: 60px; height: 60px; left:45%; top: 18.9%; font-size: 40px; font-weight: bold" class="button" onclick="updatePage(-1);">←</button>
+<button style="position: absolute; width: 60px; height: 60px; left:72.25%; top: 18.9%; font-size: 40px; font-weight: bold" class="button" onclick="updatePage(1);">→</button>
+<button id="addFriend" style="position: absolute; width: 10%; height: 80px; left: 80%; top: 77.1%; font-size: 35px; font-weight: bold;" class="button" onclick="playGame();">Play</button>
 
 <div style="width: 100%;">
     <canvas id="lobby"></canvas>

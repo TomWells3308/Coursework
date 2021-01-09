@@ -25,25 +25,16 @@ function shuffle(array){
     return array;
 }
 
-let temp ;
-
 function giveHands(){
     let i;
     let array=[];
     array=shuffle(cards);
     for(i=0; i<13; i++){
         p1Hand[i]=array[i];
-        temp = i;
         p2Hand[i]=array[13+i];
         p3Hand[i]=array[26+i];
         p4Hand[i]=array[39+i]
     }
-
-    /*setInterval(function () {
-        temp++;
-        p1Hand.push(array[temp]);
-    }, 1000);*/
-
 }
 
 let loadCardImages = new Promise(function(resolve) {
@@ -96,11 +87,6 @@ function redraw(){
     for(let i = 0; i < p1Hand.length; i++){
         context.drawImage(p1Hand[i], + (i+1.5)*spacing1, h-350*cardScale, 200*cardScale, 300*cardScale);
     }
-
-    /*let spacing2 = w / (p2Hand.length + 4);
-    for(let i = 0; i < p2Hand.length; i++){
-        context.drawImage(p2Hand[i], + (i+1.5)*spacing2, 2*h/3-150*cardScale, 200*cardScale, 300*cardScale);
-    }*/
 
     window.requestAnimationFrame(redraw);
 }
