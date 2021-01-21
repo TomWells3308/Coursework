@@ -46,7 +46,7 @@
                 window.requestAnimationFrame(redraw);
             });
 
-            const canvas = document.getElementById('login')
+            const canvas = document.getElementById('login');
 
             canvas.addEventListener('mousemove', event => {
                 mousePosition.x = event.clientX;
@@ -223,8 +223,6 @@
             const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
             return re.test(String(email).toLowerCase());
         }
-
-        console.log("Version 1.13");
     </script>
 </head>
 <body onload="pageLoad()">
@@ -255,6 +253,5 @@
 <div style="width: 100%;">
     <canvas id="login"></canvas>
 </div>
-
 </body>
 </html>
