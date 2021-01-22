@@ -9,6 +9,8 @@
             let hands = [];
             let cardImageFiles = ["10C.png", "9C.png", "8C.png", "7C.png", "6C.png", "5C.png", "4C.png", "3C.png", "2C.png", "10S.png", "9S.png", "8S.png", "7S.png", "6S.png", "5S.png", "4S.png", "3S.png", "2S.png", "10D.png", "9D.png", "8D.png", "7D.png", "6D.png", "5D.png", "4D.png", "3D.png", "2D.png","10H.png", "9H.png", "8H.png", "7H.png", "6H.png", "5H.png", "4H.png", "3H.png", "2H.png","JH.png", "AH.png", "KH.png", "QH.png", "JS.png", "AS.png", "KS.png", "QS.png", "JD.png", "AD.png", "KD.png", "QD.png", "JC.png", "AC.png", "KC.png", "QC.png"];
             let cards = [];
+            let finished = false;
+            let playerturn = 0;
 
             function fixSize() {
                 w = window.innerWidth;
@@ -33,12 +35,12 @@
             }
 
             function giveHands(){
+                var players = parseInt(Cookies.get('setting1'));
                 let array = [];
                 let k = 0;
-                let players = parseInt(Cookies.get('setting1'));
                 console.log(Math.round(52/players));
                 hands = createArray(players, Math.round(52/players));
-                array = shuffle(cardImageFiles);
+                array = shuffle(cards);
                 console.log(array);
                 console.log(players);
                 for(let j = 0; j <= 62-players; j += players){
@@ -54,10 +56,9 @@
             }
 
             let loadCardImages = new Promise(function(resolve) {
-
                 let loadedImageCount = 0;
 
-                let loadCheck = function() {
+                let loadCheck = function () {
                     loadedImageCount++;
                     if (loadedImageCount === cardImageFiles.length) {
                         console.log("Success!");
@@ -65,14 +66,13 @@
                     }
                 };
 
-                for (let c of cardImageFiles) {
+                for (let i of cardImageFiles) {
                     let img = new Image();
-                    img.src = "/client/img/" +  + c;
-                    console.log("Loading " + c);
+                    img.src = "/client/img/"+ i;
+                    console.log("Loading" + i);
                     img.onload = () => loadCheck();
-                    cards.push(img);
+                    cards.push(img)
                 }
-
             });
 
             function createArray(length) {
@@ -87,42 +87,76 @@
             }
 
             function pageLoad(){
-
                 window.addEventListener("resize", fixSize);
                 fixSize();
                 giveHands();
-
-                loadCardImages.then(() => {
+                loadCardImages.then(()=> {
                     window.requestAnimationFrame(redraw);
                 });
-
             }
 
             function redraw(){
+                console.log("Redraw");
+
                 const canvas = document.getElementById("game2");
                 const context = canvas.getContext("2d");
-
-                let cardScale = 1.0;
-                if (w < 1920) {
-                    cardScale = 1 - (1920 - w) / 1920;
-                }
 
                 context.fillStyle = "#400101";
                 context.fillRect(0, 0, w, h);
 
-                let spacing1 = w / (p1Hand.length + 4);
-                for(let i = 0; i < p1Hand.length; i++){
-                    console.log("Drawing image " + p1Hand[i]);
-                    context.drawImage(p1Hand[i], + (i+1.5)*spacing1, h-350*cardScale, 200*cardScale, 300*cardScale);
+                let x = 0;
+
+                for(let i = 0; i < hands[0].length-1; i++){
+                    console.log("Drawing image " + hands[0][i]);
+                    let card = hands[0][i];
+                    let wscale = (w/(hands[0].length-1));
+                    context.drawImage(card, x, (h-1.52*wscale), wscale, 1.52*wscale);
+                    x+=wscale;
                 }
 
+                turn();
                 window.requestAnimationFrame(redraw);
+            }
+
+            function turn() {
+                let movefinished = false;
+                let players = parseInt(Cookies.get('setting1'));
+
+                if (!finished) {
+                    if (playerturn === 0) {
+                        document.getElementById("turn").innerText = "Your Turn"
+                    } else {
+                        document.getElementById("turn").innerText = "Player " + playerturn + "'s Turn"
+                    }
+                    if (movefinished) {
+                        if (playerturn === players - 1) {
+                            playerturn=0;
+                        } else {
+                            playerturn++;
+                        }
+                    }
+                }
+            }
+
+            function command() {
+                alert("yes");
+                document.getElementById("commandForm").innerHTML = "<input autocomplete=\"off\" style=\"width: 200%\" type=\"text\" name=\"command\" id=\"command\" onkeydown=\"command()\">\n";
             }
         </script>
     </head>
     <body onload="pageLoad()" style="min-width: 800px; margin: 0; overflow: hidden">
+    <div id="turn" style="position: absolute; background-color: #824f46; width: 100%; height: 50px; font-size: 40px; font-weight: bold; margin:0 auto; text-align: center"></div>
+    <div style="position: absolute; width: 100%; height: 100%">
+        <form id="commandForm" style=" position:absolute; top: 40%; left: 2%" onkeydown="if(event.keyCode===13) return event.key !== 'Enter';" onkeyup="command()">
+            <input autocomplete="off" style="width: 200%" type="text" name="command" id="command" onkeydown="command()">
+        </form>
+    </div>
+    <div id="pActions" style="position: absolute; height: 30%; width: 19.25%; left: 2%; top: 10%; background-color: white;">
+
+    </div>
     <div style="width: 100%;">
         <canvas id="game2"></canvas>
     </div>
+
     </body>
 </html>
