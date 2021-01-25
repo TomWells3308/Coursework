@@ -9,8 +9,10 @@
             let hands = [];
             let cardImageFiles = ["10C.png", "9C.png", "8C.png", "7C.png", "6C.png", "5C.png", "4C.png", "3C.png", "2C.png", "10S.png", "9S.png", "8S.png", "7S.png", "6S.png", "5S.png", "4S.png", "3S.png", "2S.png", "10D.png", "9D.png", "8D.png", "7D.png", "6D.png", "5D.png", "4D.png", "3D.png", "2D.png","10H.png", "9H.png", "8H.png", "7H.png", "6H.png", "5H.png", "4H.png", "3H.png", "2H.png","JH.png", "AH.png", "KH.png", "QH.png", "JS.png", "AS.png", "KS.png", "QS.png", "JD.png", "AD.png", "KD.png", "QD.png", "JC.png", "AC.png", "KC.png", "QC.png"];
             let cards = [];
+            let commands = ["pick"];
             let finished = false;
             let playerturn = 0;
+            let movefinished = false;
 
             function fixSize() {
                 w = window.innerWidth;
@@ -90,14 +92,13 @@
                 window.addEventListener("resize", fixSize);
                 fixSize();
                 giveHands();
+                turn();
                 loadCardImages.then(()=> {
                     window.requestAnimationFrame(redraw);
                 });
             }
 
             function redraw(){
-                console.log("Redraw");
-
                 const canvas = document.getElementById("game2");
                 const context = canvas.getContext("2d");
 
@@ -107,56 +108,145 @@
                 let x = 0;
 
                 for(let i = 0; i < hands[0].length-1; i++){
-                    console.log("Drawing image " + hands[0][i]);
                     let card = hands[0][i];
                     let wscale = (w/(hands[0].length-1));
                     context.drawImage(card, x, (h-1.52*wscale), wscale, 1.52*wscale);
                     x+=wscale;
                 }
-
                 turn();
                 window.requestAnimationFrame(redraw);
             }
 
             function turn() {
-                let movefinished = false;
                 let players = parseInt(Cookies.get('setting1'));
 
                 if (!finished) {
                     if (playerturn === 0) {
-                        document.getElementById("turn").innerText = "Your Turn"
+                        document.getElementById("turn").innerText = "Your Turn";
                     } else {
-                        document.getElementById("turn").innerText = "Player " + playerturn + "'s Turn"
+                        document.getElementById("turn").innerText = "Player " + playerturn + "'s Turn";
+                        setTimeout(AITurn(), 2000)
                     }
                     if (movefinished) {
                         if (playerturn === players - 1) {
                             playerturn=0;
+                            movefinished=false;
                         } else {
                             playerturn++;
+                            movefinished=false;
                         }
                     }
                 }
             }
 
             function command() {
-                alert("yes");
-                document.getElementById("commandForm").innerHTML = "<input autocomplete=\"off\" style=\"width: 200%\" type=\"text\" name=\"command\" id=\"command\" onkeydown=\"command()\">\n";
+                let endturn = false;
+                let command = document.getElementById("command").value;
+                if(playerturn===0){
+                    if(command===""){
+                    } else if(command.substr(0, 1)!=="/"){
+                        console.log("Invalid input with first character: " + command.substr(0, 1));
+                        document.getElementById("pActions").innerHTML += "Invalid Command - Must begin with /<br>";
+                    } else if(!commands.includes(command.substr(1,4))){
+                        console.log("Invalid command with command: " + command.substr(1));
+                        document.getElementById("pActions").innerHTML += "Unknown Command - Please enter a recognised command<br>";
+                    } else if(command.substr(1,4)==="pick"){
+                        let cardNumber = command.substr(6);
+                        cardNumber = parseInt(cardNumber);
+                        if(Number.isInteger(cardNumber)){
+                            if((hands[1].length >= cardNumber)&&(hands[1][cardNumber-1] !== undefined)){
+                                console.log("Invoking pickCard() with command data: " + command.substr(6));
+                                document.getElementById("pActions").innerHTML += "<Player> Picked Card " + cardNumber +"<br>";
+                                document.getElementById("pActions").innerHTML += "<Player>Card " + cardNumber + " was " + lettersToCard((hands[1][cardNumber-1].src).substr(33,35)) + "<br>";
+                                pickCard(command.substr(6));
+                                endturn=true;
+                            } else {
+                                document.getElementById("pActions").innerHTML += "Invalid Input - Number exceeded card size<br>";
+                            }
+
+                        } else {
+                            document.getElementById("pActions").innerHTML += "Invalid Input - Number not recognised<br>";
+                        }
+
+                    }
+                } else {
+                    document.getElementById("pActions").innerHTML += "Invalid Action - Not Player's Turn<br>";
+                }
+
+                if(endturn===true){
+                    movefinished=true;
+                }
+                emptyInput();
+                scrollToBottom();
+            }
+
+            function scrollToBottom () {
+                let div = document.getElementById("pActions");
+                div.scrollTop = div.scrollHeight - div.clientHeight;
+            }
+
+            function emptyInput() {
+                document.getElementById("command").value = '';
+            }
+
+            function lettersToCard(letters){
+                let card;
+                switch (letters.substr(0,1)) {
+                    case "J":
+                        card="Jack";
+                        break;
+                    case "Q":
+                        card="Queen";
+                        break;
+                    case "K":
+                        card="King";
+                        break;
+                    case "A":
+                        card="Ace";
+                        break;
+                    default:
+                        card=letters.substr(0,1);
+                }
+                card += " of ";
+                switch (letters.substr(1,2)) {
+                    case "S.":
+                        card += "Spades";
+                        break;
+                    case "C.":
+                        card += "Clubs";
+                        break;
+                    case "D.":
+                        card += "Diamonds";
+                        break;
+                    case "H.":
+                        card += "Hearts";
+                        break;
+                    default:
+                        card += letters.substr(1,2);
+                } return card;
+            }
+
+            function pickCard(cardNumber){
+                hands[0][hands[0].length] = hands[1][cardNumber-1];
+                hands[1][cardNumber-1] = undefined;
+                hands[0].sort();
+                hands[1].sort();
+            }
+
+            function AITurn(){
+
             }
         </script>
     </head>
     <body onload="pageLoad()" style="min-width: 800px; margin: 0; overflow: hidden">
     <div id="turn" style="position: absolute; background-color: #824f46; width: 100%; height: 50px; font-size: 40px; font-weight: bold; margin:0 auto; text-align: center"></div>
-    <div style="position: absolute; width: 100%; height: 100%">
-        <form id="commandForm" style=" position:absolute; top: 40%; left: 2%" onkeydown="if(event.keyCode===13) return event.key !== 'Enter';" onkeyup="command()">
-            <input autocomplete="off" style="width: 200%" type="text" name="command" id="command" onkeydown="command()">
-        </form>
-    </div>
-    <div id="pActions" style="position: absolute; height: 30%; width: 19.25%; left: 2%; top: 10%; background-color: white;">
 
-    </div>
+    <input autocomplete="off" style="padding: 0; border-style: solid; border-width: 1px; outline: none; border-color: black; position: absolute; height: 2.5%; width: 20%; top: 40%; left: 2%" type="text" name="command" id="command" autofocus>
+
+    <button style="position: absolute; width: 5%; height: 2%; left:2%; top: 42.6%; font-size: 14px; font-weight: bold" class="button" onclick="command();">Enter</button>
+    <div id="pActions" style="border-style: solid; border-width: 1px; position: absolute; overflow-y:auto; height: 30%; width: 20%; left: 2%; top: 10%; background-color: white;"></div>
     <div style="width: 100%;">
         <canvas id="game2"></canvas>
     </div>
-
     </body>
 </html>
