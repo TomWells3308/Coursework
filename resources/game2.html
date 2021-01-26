@@ -9,6 +9,7 @@
             let hands = [];
             let cardImageFiles = ["10C.png", "9C.png", "8C.png", "7C.png", "6C.png", "5C.png", "4C.png", "3C.png", "2C.png", "10S.png", "9S.png", "8S.png", "7S.png", "6S.png", "5S.png", "4S.png", "3S.png", "2S.png", "10D.png", "9D.png", "8D.png", "7D.png", "6D.png", "5D.png", "4D.png", "3D.png", "2D.png","10H.png", "9H.png", "8H.png", "7H.png", "6H.png", "5H.png", "4H.png", "3H.png", "2H.png","JH.png", "AH.png", "KH.png", "QH.png", "JS.png", "AS.png", "KS.png", "QS.png", "JD.png", "AD.png", "KD.png", "JC.png", "AC.png", "KC.png", "QC.png"];
             let cards = [];
+            let cardback;
             let commands = ["pick"];
             let finished = true;
             let playerturn = 0;
@@ -75,6 +76,10 @@
                     }
                 };
 
+                let img = new Image();
+                img.src = "/client/img/red_back.png";
+                cardback = img;
+
                 for (let i of cardImageFiles) {
                     let img = new Image();
                     img.src = "/client/img/"+ i;
@@ -82,6 +87,9 @@
                     img.onload = () => loadCheck();
                     cards.push(img)
                 }
+
+
+
             });
 
             function createArray(length) {
@@ -151,8 +159,17 @@
                             empty = false
                         }
                     }
-                    for(let i = 0; i < newArray.length; i++){
 
+                    let x = 0.23*w;
+                    let wscale = ((0.6*w)/(newArray.length));
+
+                    if(newArray.length<6){
+                        wscale = (0.6*w)/6
+                    }
+
+                    for(let i = 0; i < newArray.length; i++){
+                        context.drawImage(cardback, x, 0.1*h, wscale, 1.52*wscale);
+                        x+=wscale;
                     }
                 }
                 window.requestAnimationFrame(redraw);
@@ -354,7 +371,10 @@
                             y++;
                         }
                     } if(newArray.length===0){
-                        playerturn++
+                        playerturn++;
+                        if(playerturn===players){
+                            playerturn=0;
+                        }
                     } else {
                         empty1 = false;
                     }
@@ -489,12 +509,12 @@
                             counter++
                         }
                     }
-                    let points = 5-counter;
+                    let points = 6-counter;
                     if(points<=0){
                         points = 1;
                     }
-                    Cookies.append("Points", points);
-                    alert("Well Done! You came in position: " + counter+1 + "and will gain " + points + " points")
+                    Cookies.set("Points", points);
+                    alert("Well Done! You came in position: " + (counter) + "and will gain " + points + " points");
                     window.location.replace("http://localhost:8081/endgame.html");
                 }
             }
