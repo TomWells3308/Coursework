@@ -40,11 +40,8 @@
                 let players = parseInt(Cookies.get('setting1'));
                 let array = [];
                 let k = 0;
-                console.log(Math.round(52/players));
                 hands = createArray(players, Math.round(52/players));
                 array = shuffle(cards);
-                console.log(array);
-                console.log(players);
                 for(let j = 0; j <= 62-players; j += players){
                     for(let i = 0; i <= players-1; i++){
                         if(j+1 < 53){
@@ -54,18 +51,15 @@
                     }
                     k++;
                 }
-                console.log(hands);
                 let y = 0;
                 let newArray = [];
 
                 for(let i = 0; i < hands[0].length; i++) {
                     if (hands[0][i] !== undefined) {
                         newArray[y] = hands[0][i];
-                        console.log("Adding " + hands[0][i].src);
                         y++;
                     }
                 }
-                console.log(newArray);
                 removePairs();
                 turn();
             }
@@ -107,6 +101,7 @@
                 giveHands();
                 loadCardImages.then(()=> {
                     window.requestAnimationFrame(redraw);
+                    turn();
                 });
             }
 
@@ -137,42 +132,71 @@
                     context.drawImage(card, x, (h-1.52*wscale), wscale, 1.52*wscale);
                     x+=wscale;
                 }
-                turn();
+
+                if(playerturn===0){
+                    let empty = true;
+                    let pickedPlayer = 1;
+
+                    while(empty){
+                        let y = 0;
+                        newArray = [];
+                        for(let i = 0; i < hands[1].length; i++) {
+                            if (hands[pickedPlayer][i] !== undefined) {
+                                newArray[y] = hands[pickedPlayer][i];
+                                y++;
+                            }
+                        } if(newArray.length===0){
+                            pickedPlayer++
+                        } else {
+                            empty = false
+                        }
+                    }
+                    for(let i = 0; i < newArray.length; i++){
+
+                    }
+                }
                 window.requestAnimationFrame(redraw);
             }
 
             function turn() {
                 let players = parseInt(Cookies.get('setting1'));
+                let playerdecided = false;
                 let y = 0;
                 let newArray = [];
-
-                for(let i = 0; i < hands[0].length; i++) {
-                    if (hands[0][i] !== undefined) {
-                        newArray[y] = hands[0][i];
+                if(playerturn>=players){
+                    playerturn=0;
+                }
+                for(let i = 0; i < hands[playerturn].length; i++) {
+                    if (hands[playerturn][i] !== undefined) {
+                        newArray[y] = hands[playerturn][i];
                         y++;
                     }
                 }
                 if (finished) {
                     if (movefinished) {
-                        if (playerturn === players - 1) {
+                        playerturn++;
+                        if(newArray.length===0) {
+                            playerturn++;
+                        } else if (playerturn === players) {
                             playerturn=0;
                             movefinished=false;
-                        } else if(newArray.length===0){
-                            playerturn++;
+                            playerdecided=true;
                         } else {
-                            playerturn++;
                             movefinished=false;
+                            playerdecided=true;
                         }
                     }
-                    if (playerturn === 0) {
-                        document.getElementById("turn").innerText = "Your Turn";
-                    } else {
-                        document.getElementById("turn").innerText = "Player " + playerturn + "'s Turn";
-                        finished = false;
-                        //setTimeout(AITurn, 2000);
-                        AITurn();
-                    }
 
+                    if(playerdecided){
+                        if (playerturn === 0) {
+                            document.getElementById("turn").innerText = "Your Turn";
+                        } else {
+                            document.getElementById("turn").innerText = "Player " + playerturn + "'s Turn";
+                            finished = false;
+                            //setTimeout(AITurn, 2000);
+                            AITurn();
+                        }
+                    }
                 }
             }
 
@@ -181,6 +205,7 @@
                 let command = document.getElementById("command").value;
                 if(playerturn===0){
                     if(command===""){
+                        consoleCurrentHand();
                     } else if(command.substr(0, 1)!=="/"){
                         console.log("Invalid input with first character: " + command.substr(0, 1));
                         document.getElementById("pActions").innerHTML += "Invalid Command - Must begin with /<br>";
@@ -193,10 +218,29 @@
                         let cardNumber = command.substr(6);
                         cardNumber = parseInt(cardNumber);
                         if(Number.isInteger(cardNumber)){
-                            if((hands[1].length >= cardNumber)&&(hands[1][cardNumber-1] !== undefined)){
+
+                            let empty = true;
+                            let pickedPlayer = 1;
+
+                            while(empty){
+                                let y = 0;
+                                let newArray = [];
+                                for(let i = 0; i < hands[1].length; i++) {
+                                    if (hands[pickedPlayer][i] !== undefined) {
+                                        newArray[y] = hands[pickedPlayer][i];
+                                        y++;
+                                    }
+                                } if(newArray.length===0){
+                                    pickedPlayer++
+                                } else {
+                                    empty = false
+                                }
+                            }
+
+                            if((hands[pickedPlayer].length >= cardNumber)&&(hands[pickedPlayer][cardNumber-1] !== undefined)){
                                 console.log("Invoking pickCard() with command data: " + command.substr(6));
                                 document.getElementById("pActions").innerHTML += "&ltPlayer&gt Picked Card " + cardNumber +"<br>";
-                                document.getElementById("pActions").innerHTML += "&ltPlayer&gt Card " + cardNumber + " was " + lettersToCard((hands[1][cardNumber-1].src).substr(33,35)) + "<br>";
+                                document.getElementById("pActions").innerHTML += "&ltPlayer&gt Card " + cardNumber + " was " + lettersToCard((hands[pickedPlayer][cardNumber-1].src).substr(33,35)) + "<br>";
                                 scrollToBottom();
                                 pickCard(command.substr(6));
                                 endturn=true;
@@ -219,6 +263,7 @@
                 if(endturn===true){
                     movefinished=true;
                 }
+                turn();
                 emptyInput();
                 scrollToBottom();
             }
@@ -270,15 +315,15 @@
             }
 
             function pickCard(cardNumber){
-
                 let empty = true;
                 let pickedPlayer = 1;
+
                 while(empty){
                     let y = 0;
                     let newArray = [];
                     for(let i = 0; i < hands[1].length; i++) {
-                        if (hands[0][i] !== undefined) {
-                            newArray[y] = hands[0][i];
+                        if (hands[pickedPlayer][i] !== undefined) {
+                            newArray[y] = hands[pickedPlayer][i];
                             y++;
                         }
                     } if(newArray.length===0){
@@ -292,40 +337,69 @@
                 hands[pickedPlayer][cardNumber-1] = undefined;
                 hands[0].sort();
                 hands[pickedPlayer].sort();
-                consoleCurrentHand();
             }
 
             function AITurn(){
                 let players = parseInt(Cookies.get('setting1'));
-                let pickedPlayer;
-                if(playerturn+1===players){
-                    pickedPlayer = 0;
-                } else {
-                    pickedPlayer = playerturn+1;
-                }
+                let empty1 = true;
+                let empty2 = true;
                 let newArray = [];
-                let y=0;
-                for(let i = 0; i < hands[playerturn].length; i++) {
-                    if (hands[playerturn][i] !== undefined) {
-                        newArray[y] = hands[playerturn][i];
-                        y++;
+
+                while(empty1){
+                    let y = 0;
+                    newArray = [];
+                    for(let i = 0; i < hands[playerturn].length; i++) {
+                        if (hands[playerturn][i] !== undefined) {
+                            newArray[y] = hands[playerturn][i];
+                            y++;
+                        }
+                    } if(newArray.length===0){
+                        playerturn++
+                    } else {
+                        empty1 = false;
                     }
                 }
 
+                let pickedPlayer = playerturn+1;
+
+                while(empty2){
+                    let y = 0;
+                    newArray = [];
+                    if(pickedPlayer===players){
+                        pickedPlayer=0;
+                    }
+                    for(let i = 0; i < hands[pickedPlayer].length; i++) {
+                        if (hands[pickedPlayer][i] !== undefined) {
+                            newArray[y] = hands[pickedPlayer][i];
+                            y++;
+                        }
+                    } if(newArray.length===0){
+                        pickedPlayer++;
+                        if(pickedPlayer===players){
+                            pickedPlayer=0;
+                        }
+                    } else {
+                        empty2 = false
+                    }
+                }
+
+
+                if(pickedPlayer===players){
+                    pickedPlayer=0;
+                }
                 let cardNumber = getRandomInt(1, newArray.length+1);
+                console.log(playerturn + " picked player = " + pickedPlayer + " With array length = " + newArray.length + " and card number = " + cardNumber);
+                consoleCurrentHand();
                 hands[playerturn][hands[playerturn].length] = hands[pickedPlayer][cardNumber-1];
                 hands[pickedPlayer][cardNumber-1] = undefined;
                 hands[playerturn].sort();
                 hands[pickedPlayer].sort();
-                console.log("Players Hands:");
-                for(let i = 0; i<hands.length){
-                    for(let j = 0; i<hands[i].length)
-                }
                 document.getElementById("pActions").innerHTML += "&ltAI " + playerturn + "&gt Picked Card " + cardNumber + " From Player " + pickedPlayer + "<br>";
                 scrollToBottom();
                 removePairs();
                 finished = true;
                 movefinished=true;
+                turn();
             }
 
             function getRandomInt(min, max) {
@@ -335,16 +409,17 @@
             }
 
             function consoleCurrentHand(){
-                let y = 0;
-                let newArray = [];
-
-                for(let i = 0; i < hands[0].length-1; i++) {
-                    if (hands[0][i] !== undefined) {
-                        newArray[y] = hands[0][i].src;
-                        y++;
+                let handsNames = [];
+                console.log("Current Hands:");
+                for(let i = 0; i<hands.length; i++){
+                    handsNames = [];
+                    for(let j = 0; j<hands[i].length; j++){
+                        if(hands[i][j]!==undefined){
+                            handsNames[j] = (hands[i][j].src).substr(33);
+                        }
                     }
+                    console.log(handsNames);
                 }
-                console.log(newArray);
             }
 
             function removePairs(){
@@ -354,15 +429,10 @@
                     for(let j = 0; j <= hands[i].length-1; j++){
                         for(let k = 0; k <= hands[i].length-1; k++){
                             if((hands[i][j]!==undefined)&&(hands[i][k]!==undefined)){
-                                console.log("Check 1");
                                 currentCheckCardj = hands[i][j].src;
                                 currentCheckCardk = hands[i][k].src;
                                 if(j!==k){
-                                    console.log("Check 2");
-                                    console.log(currentCheckCardj.substr(33));
-                                    console.log(currentCheckCardk.substr(33));
                                     if((currentCheckCardj.substr(33)).substr(0,1) === (currentCheckCardk.substr(33)).substr(0,1)){
-                                        console.log("Check 3");
                                         if(i===0){
                                             let card;
                                             switch ((currentCheckCardj.substr(33)).substr(0,1)) {
@@ -393,11 +463,45 @@
                     }
                     hands[i].sort()
                 }
+                checkIfWon();
+            }
+            function checkIfWon(){
+                let y = 0;
+                let newArray = [];
+                for(let i = 0; i < hands[0].length; i++) {
+                    if (hands[0][i] !== undefined) {
+                        newArray[y] = hands[0][i];
+                        y++;
+                    }
+                }
+                if(newArray.length===0){
+                    redraw();
+                    let handsNames = [];
+                    let counter = 0;
+                    console.log("Current Hands:");
+                    for(let i = 0; i<hands.length; i++){
+                        handsNames = [];
+                        for(let j = 0; j<hands[i].length; j++) {
+                            if (hands[i][j] !== undefined) {
+                                handsNames[j] = (hands[i][j].src).substr(33);
+                            }
+                        } if (handsNames.length===0){
+                            counter++
+                        }
+                    }
+                    let points = 5-counter;
+                    if(points<=0){
+                        points = 1;
+                    }
+                    Cookies.append("Points", points);
+                    alert("Well Done! You came in position: " + counter+1 + "and will gain " + points + " points")
+                    window.location.replace("http://localhost:8081/endgame.html");
+                }
             }
         </script>
     </head>
     <body onload="pageLoad()" style="min-width: 800px; margin: 0; overflow: hidden">
-    <div id="turn" style="position: absolute; background-color: #824f46; width: 100%; height: 50px; font-size: 40px; font-weight: bold; margin:0 auto; text-align: center"></div>
+    <div id="turn" style="position: absolute; background-color: #824f46; width: 100%; height: 50px; font-size: 40px; font-weight: bold; margin:0 auto; text-align: center">Your Turn</div>
 
     <input autocomplete="off" style="padding: 0; border-style: solid; border-width: 1px; outline: none; border-color: black; position: absolute; height: 2.5%; width: 20%; top: 40%; left: 2%" type="text" name="command" id="command" autofocus>
 
