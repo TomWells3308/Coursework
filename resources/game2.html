@@ -210,8 +210,8 @@
                         } else {
                             document.getElementById("turn").innerText = "Player " + playerturn + "'s Turn";
                             finished = false;
-                            //setTimeout(AITurn, 2000);
-                            AITurn();
+                            removePairs();
+                            setTimeout(AITurn, 2000);
                         }
                     }
                 }
@@ -509,14 +509,35 @@
                             counter++
                         }
                     }
-                    let points = 6-counter;
-                    if(points<=0){
-                        points = 1;
+                    Cookies.set("Counter", counter);
+                    window.location.replace("http://localhost:8081/endgame.html");
+                } else {
+                    checkIfLost();
+                }
+            }
+
+            function checkIfLost(){
+                let handsNames = [];
+                let counter = 0;
+                let players = parseInt(Cookies.get('setting1'));
+                for(let i = 1; i<hands.length; i++){
+                    handsNames = [];
+                    for(let j = 0; j<hands[i].length; j++) {
+                        if (hands[i][j] !== undefined) {
+                            handsNames[j] = (hands[i][j].src).substr(33);
+                        }
+                    } if (handsNames.length===0){
+                        counter++
                     }
-                    Cookies.set("Points", points);
-                    alert("Well Done! You came in position: " + (counter) + "and will gain " + points + " points");
+                } if (counter===players-1){
+                    Cookies.set("Counter", counter);
                     window.location.replace("http://localhost:8081/endgame.html");
                 }
+            }
+
+            function help(){
+                alert("Use the command /pick [number] to pick a card from the next players hand displayed on the screen")
+                alert("Rules: \nEach player removes all pairs from his hand face down. If a player has three-of-a-kind, they remove only two of those three cards. The next player then offers their hand, to the player on the left, who draws one card from it. This player discards any pair that may have been formed by the drawn card. The player then offers their own hand to the player on their left. Play proceeds in this way until all cards have been paired except one - the odd queen, which cannot be paired - and the player who has that card is the Old Maid!")
             }
         </script>
     </head>
@@ -526,6 +547,7 @@
     <input autocomplete="off" style="padding: 0; border-style: solid; border-width: 1px; outline: none; border-color: black; position: absolute; height: 2.5%; width: 20%; top: 40%; left: 2%" type="text" name="command" id="command" autofocus>
 
     <button style="position: absolute; width: 5%; height: 2%; left:2%; top: 42.6%; font-size: 14px; font-weight: bold" class="button" onclick="command();">Enter</button>
+    <button style="position: absolute; width: 130px; height: 50px; font-size: 24px; font-weight: bold; float: right" class="button" onclick="help();">Help</button>
     <div id="pActions" style="border-style: solid; border-width: 1px; position: absolute; overflow-y:auto; height: 30%; width: 20%; left: 2%; top: 10%; background-color: white;"></div>
     <div style="width: 100%;">
         <canvas id="game2"></canvas>

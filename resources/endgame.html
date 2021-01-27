@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Endgame</title>
+    <script type="module" src="/client/js/js.cookie.min.js"></script>
     <script>
         let w=0,h=0;
         let imageFiles = ["StackedDecksLogo.JPG"];
@@ -38,6 +39,10 @@
         });
 
         function pageLoad(){
+            if(Cookies.get("Counter")===undefined){
+                alert("Error processing score. \nYou will be redirected to the Home Page.");
+                window.location.replace("http://localhost:8081/menu.html")
+            }
             window.addEventListener("resize", fixSize);
             fixSize();
             loadImages.then(()=> {
@@ -66,6 +71,7 @@
                     rightMouseDown = false;
                 }
             }, false);
+            initializeGameStats()
         }
 
         function redraw(){
@@ -82,6 +88,162 @@
             }
             window.requestAnimationFrame(redraw);
         }
+
+        function initializeGameStats(){
+            console.log("Invoked initializeGameStats()");
+
+            const url = "/user/get-token/";
+            let token = Cookies.get("token");
+
+            fetch(url + token, {
+                method: "GET",
+            }).then(response => {
+                return response.json();
+            }).then(response => {
+                if (response.hasOwnProperty("Error")) {
+                    alert(JSON.stringify(response));
+                } else{
+                    getScoreUser(response);
+                }
+            })
+        }
+
+        function getScoreUser(UserResponse){
+            console.log("Invoked getScoreUser()");
+
+            const url = "/leaderboard/list-user/";
+            let UserID = UserResponse.UserID;
+
+            fetch(url + UserID, {
+                method: "GET",
+            }).then(response => {
+                return response.json();
+            }).then(response => {
+                if (response.hasOwnProperty("Error")) {
+                    alert(JSON.stringify(response));
+                } else{
+                    displayGameStats(UserResponse, response);
+                }
+            })
+        }
+
+        function displayGameStats(UserResponse, ScoreResponse){
+            let counter = Cookies.get("Counter");
+            let points = 6-counter;
+            if(points<=0){points = 1;}
+            let totalPoints;
+            let Game1Points;
+            let Game2Points;
+            let Game3Points;
+            let addHTML = "<div style=\"position: relative; top:5%; font-weight: bold; font-size: 42px\">User Stats</div>\n";
+            addHTML += "<div style=\"position: relative; top:15%;\">Username: " + UserResponse.Username + "</div>";
+            addHTML += "<div style=\"position: relative; top:25%;\">Gained Points: +" + points +"</div>";
+            for(let i = 0; i<ScoreResponse.length; i++){
+                switch(ScoreResponse[i].GameID){
+                    case 1:
+                        Game1Points = ScoreResponse[i].Score;
+                        break;
+                    case 2:
+                        Game2Points = ScoreResponse[i].Score;
+                        break;
+                    case 3:
+                        Game3Points = ScoreResponse[i].Score;
+                }
+            } switch (parseInt(Cookies.get("GameID"))) {
+                case 1:
+                    Game1Points += points;
+                    break;
+                case 2:
+                    Game2Points += points;
+                    break;
+                case 3:
+                    Game3Points += points;
+                    break;
+            } totalPoints = Game1Points + Game2Points + Game3Points;
+
+            let position;
+            switch (counter) {
+                case "1":
+                    position = counter.toString() + "st";
+                    break;
+                case "2":
+                    position = counter.toString() + "nd";
+                    break;
+                case "3":
+                    position = counter.toString() + "rd";
+                    break;
+                default:
+                    position = counter.toString() + "th"
+            }
+
+            addHTML += "<div style=\"position: relative; top:35%;\">Total Points: " + totalPoints + "</div>";
+            addHTML += "<div style=\"position: relative; top:45%;\">Poker Points: " + Game1Points + "</div>";
+            addHTML += "<div style=\"position: relative; top:55%;\">Old Maid Points: " + Game2Points + "</div>";
+            addHTML += "<div style=\"position: relative; top:65%;\">Mafia Points: " + Game3Points + "</div>";
+            document.getElementById("gameStats").innerHTML = addHTML;
+
+            addHTML = "<div style=\"position: relative; top:8%; font-weight: bold; font-size: 64px\">Game Over</div>";
+            addHTML += "<div style=\"position: relative; top:20%;\">GG! You have finished the game!</div>";
+            addHTML += "<div style=\"position: relative; top:32%;\">You Came " + position + " and gained " + points + " Points!</div>";
+            addHTML += "<div style=\"position: relative; top:44%;\">";
+            addHTML += "<button style=\"width: 200px; height: 80px; font-size: 32px; font-weight: bold\" class=\"button\" onclick=\"toGameLobby();\">Game Lobby</button>";
+            addHTML += "</div>";
+            addHTML += "<div style=\"position: relative; top:56%;\">";
+            addHTML += "<button style=\"width: 200px; height: 80px; font-size: 35px; font-weight: bold\" class=\"button\" onclick=\"toHome();\">Home</button>";
+            addHTML += "</div>";
+            document.getElementById("finishMessage").innerHTML = addHTML;
+
+            updateScore(Game1Points, Game2Points, Game2Points);
+        }
+
+        function updateScore(g1, g2, g3){
+            console.log("Invoked updateScore()");
+            let score;
+
+            switch(parseInt(Cookies.get("GameID"))){
+                case 1:
+                    score = g1;
+                    break;
+                case 2:
+                    score = g2;
+                    break;
+                case 3:
+                    score = g3;
+                    break;
+            }
+
+            let url = "/leaderboard/update";
+            let formData = new FormData();
+
+            formData.append('Score', score);
+            formData.append('UserID', Cookies.get("UserID"));
+            formData.append('GameID', Cookies.get("GameID"));
+
+            fetch(url, {
+                method: "POST",
+                body: formData,
+            }).then(response => {
+                return response.json();
+            }).then(response => {
+                if(response.hasOwnProperty("Error")){
+                    alert("Error Updating Score");
+                    alert(JSON.stringify(response));
+                }
+                else{
+                    console.log("Score Updated to " + score);
+                    Cookies.remove("Counter");
+                    Cookies.remove("setting1");
+                }
+            });
+        }
+
+        function toHome(){
+            window.location.replace("http://localhost:8081/menu.html")
+        }
+
+        function toGameLobby(){
+            window.location.replace("http://localhost:8081/gamelobby.html")
+        }
     </script>
 </head>
 <body onload="pageLoad()">
@@ -89,18 +251,8 @@
     <canvas id="endgame"></canvas>
 </div>
 <div id="gameStats" style="position: absolute; left: 2.75%; top: 15%; border-width:1px; border-style: solid; font-size: 32px; height:80%; width: 20%; text-align: center; line-height: 10%; display: inline-block; vertical-align: middle">
-    <div style="position: relative; top:5%; font-weight: bold; font-size: 42px">User Stats</div>
-    <div style="position: relative; top:15%;">Username: Admin</div>
-    <div style="position: relative; top:25%;">Gained Points: +5</div>
-    <div style="position: relative; top:35%;">Total Points: 10</div>
-    <div style="position: relative; top:45%;">Poker Points: 10</div>
-    <div style="position: relative; top:55%;">Old Maid Points: 10</div>
-    <div style="position: relative; top:65%;">Mafia Points: 10</div>
 </div>
-<div style="position: absolute; left: 25%; top: 15%; border-width:1px; border-style: solid; font-size: 42px; height:80%; width: 70%; text-align: center; line-height: 10%; display: inline-block; vertical-align: middle">
-    <div style="position: relative; top:8%; font-weight: bold; font-size: 64px">Game Over</div>
-    <div style="position: relative; top:20%;">GG! You have finished the game!</div>
-    <div style="position: relative; top:32%;">You Came 2nd and gained 5 Points!</div>
+<div id="finishMessage" style="position: absolute; left: 25%; top: 15%; border-width:1px; border-style: solid; font-size: 42px; height:80%; width: 70%; text-align: center; line-height: 10%; display: inline-block; vertical-align: middle">
 </div>
 <div style="position: absolute; left: 2.75%; top: 15%; border-width:1px; border-style: solid; font-size: 32px; height:8%; width: 20%; text-align: center; line-height: 10%; display: inline-block; vertical-align: middle"></div>
 </body>
